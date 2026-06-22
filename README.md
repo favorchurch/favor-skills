@@ -8,8 +8,8 @@ This repository contains a collection of AI Agent Skills utilized by Favor Churc
 
 | Skill Folder | Description |
 | :--- | :--- |
-| **[`speak-like-favor`](skills/speak-like-favor)** | Voice, copywriting tone, mechanical rules, formatting, and QA guidelines for drafting and editing Favor Church communications. |
-| **[`attendees`](skills/attendees)** | Workflow for counting registered or checked-in attendees for events using WooCommerce/Favor Event Tickets or Fluro. |
+| **[`speak-like-favor`](speak-like-favor)** | Voice, copywriting tone, mechanical rules, formatting, and QA guidelines for drafting and editing Favor Church communications. |
+| **[`attendees`](attendees)** | Workflow for counting registered or checked-in attendees for events using WooCommerce/Favor Event Tickets or Fluro. |
 
 ---
 
@@ -30,7 +30,7 @@ Copy the skills to your global agent configurations folder:
 mkdir -p ~/.gemini/skills
 
 # Copy the skills
-cp -r ~/Git/favor-skills/skills/* ~/.gemini/skills/
+cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees ~/.gemini/skills/
 ```
 
 ### 3. Install for a Specific Workspace
@@ -40,7 +40,7 @@ If you only want these skills active within a specific project folder, copy them
 mkdir -p .agents/skills
 
 # Copy the skills
-cp -r ~/Git/favor-skills/skills/* .agents/skills/
+cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees .agents/skills/
 ```
 
 ---
