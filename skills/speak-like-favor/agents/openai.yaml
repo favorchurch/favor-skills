@@ -1,0 +1,10 @@
+interface:
+  display_name: Speak Like Favor
+  short_description: Favor Church Manila voice, formatting, and QA rules for copy.
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
