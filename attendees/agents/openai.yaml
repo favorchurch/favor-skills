@@ -1,0 +1,10 @@
+interface:
+  display_name: Attendees
+  short_description: Count registered or checked-in attendees for an event.
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true
