@@ -1,10 +1,23 @@
+# Per-agent configuration for the "speak-like-favor" skill on OpenAI-family assistants.
+# Controls how the skill is presented and when it may run on ChatGPT, Codex, the API, and Atlas.
+# This file configures presentation/invocation only; the skill's actual instructions live in
+# ../SKILL.md (the single source of truth).
+
+# How the skill appears in the assistant's UI / skill picker.
 interface:
+  # Human-readable name shown to users.
   display_name: Speak Like Favor
+  # One-line summary shown alongside the name.
   short_description: Favor Church Manila voice, formatting, and QA rules for copy.
+
+# Where and how the skill is allowed to be used.
 policy:
+  # OpenAI surfaces this skill is published to.
   products:
   - chatgpt
   - codex
   - api
   - atlas
+  # When true, the assistant may invoke the skill on its own (without an explicit user
+  # command) whenever the request matches the skill's description.
   allow_implicit_invocation: true

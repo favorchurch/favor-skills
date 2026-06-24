@@ -1,60 +1,39 @@
-# Favor Church AI Skills (favor-skills)
+# Favor Church AI Skills 🚀
 
-This repository contains a collection of AI Agent Skills utilized by Favor Church Manila. These skills are custom instructions, workflows, and rules that guide AI assistants (Gemini CLI, Claude Code, ChatGPT, Cursor, etc.) to perform tasks following church standards.
+A friendly, non-coder guide to installing and using **Favor Church AI Skills**.
 
----
-
-## 📋 Table of Available Skills
-
-| Skill Folder | Description |
-| :--- | :--- |
-| **[`speak-like-favor`](speak-like-favor)** | Voice, copywriting tone, mechanical rules, formatting, and QA guidelines for drafting and editing Favor Church communications. |
-| **[`attendees`](attendees)** | Workflow for counting registered or checked-in attendees for events using WooCommerce/Favor Event Tickets or Fluro. |
+These "skills" are custom instructions, guidelines, and workflows. They teach AI assistants (like Claude, Gemini, Cursor, ChatGPT, and Codex) how to write, format, and perform church operations exactly according to Favor Church Manila standards.
 
 ---
 
-## 🚀 Installation Instructions (Command Line)
+## ⚡ Instant Install via AI Assistant (Recommended)
 
-To use these skills locally with agentic command-line assistants (such as Gemini CLI or Claude Code), you can install them globally or per-workspace.
+If you are using a terminal-enabled AI assistant (like **Claude Code**, **Gemini CLI / Antigravity**, **Cursor**, or **Windsurf**), you don't need to run any terminal commands yourself!
 
-### 1. Clone the repository
-First, clone this repository to your local machine:
-```bash
-git clone git@github.com:favorchurch/favor-skills.git ~/Git/favor-skills
-```
+Just **copy the prompt below** and paste it directly into your AI's chat box:
 
-### 2. Install Globally
-Copy the skills to your global agent configurations folder:
-```bash
-# Create the directory if it does not exist
-mkdir -p ~/.gemini/skills
-
-# Copy the skills
-cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees ~/.gemini/skills/
-```
-
-### 3. Install for a Specific Workspace
-If you only want these skills active within a specific project folder, copy them to the local workspace customization directory:
-```bash
-# In your target project root:
-mkdir -p .agents/skills
-
-# Copy the skills
-cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees .agents/skills/
+```text
+I want to install the Favor Church AI skills as plugins/skills in my AI agent environment.
+Please execute the following steps:
+1. Clone the repository `https://github.com/favorchurch/favor-skills.git` to `~/Git/favor-skills` (create or update the directory if needed).
+2. Install the skills (`speak-like-favor` and `attendees` folders) by copying them into the appropriate global and/or workspace-level folders for my assistant:
+   - If you are Gemini CLI / Antigravity: Copy them to `~/.gemini/skills/` (global) and/or `.agents/skills/` (workspace).
+   - If you are Claude Code: Copy them to `~/.claude/skills/` (global) and/or `.agents/skills/` (workspace).
+   - If you are Cursor / Windsurf: Copy them to `.agents/skills/` in the workspace, or generate a `.cursorrules` file using the rules from `speak-like-favor/SKILL.md` in the workspace root.
+3. Verify that the files are properly copied.
+Please check if you have command execution or file system capabilities. If you do, go ahead and install these skills now!
 ```
 
 ---
 
-## 💬 How to Install / Ingest via Prompt (Web AI)
+## 💬 Use in Web AIs (ChatGPT, Claude.ai, Gemini Web)
 
-If you are using a web-based AI assistant (like Claude.ai, ChatGPT, or Gemini Web) and cannot use CLI-based skills, you can copy-paste the skill instructions directly into your prompt, custom instructions, or system rules.
+If you are using web-based AI assistants (which cannot run commands or install plugins), you can copy and paste the rules below directly into your AI's **Custom Instructions**, **System Prompt**, or **Project Knowledge**.
 
-Below are the direct markdown contents you can copy-paste:
-
-### A. Speak Like Favor
-> Use this when you want the AI to draft or QA copy in the Favor Church voice.
+### 1. Speak Like Favor Voice Rules
+*(Teaches the AI our writing tone, date formats, and capitalization guidelines)*
 <details>
-<summary><b>Click to expand "Speak Like Favor" System Prompt</b></summary>
+<summary><b>Click to expand "Speak Like Favor" prompt</b></summary>
 
 ```markdown
 # Speak Like Favor
@@ -190,12 +169,13 @@ Before finalizing, scan for:
 - God/Jesus/Holy Spirit pronouns are lowercase.
 - Email closing uses `Much love,` and the right team name.
 ```
+
 </details>
 
-### B. Attendees
-> Use this when you want the AI to understand how to check registration and check-in counts for Favor events.
+### 2. Event Attendee Count Workflow
+*(Teaches the AI how to lookup attendee numbers)*
 <details>
-<summary><b>Click to expand "Attendees" Workflow Prompt</b></summary>
+<summary><b>Click to expand "Attendees" workflow prompt</b></summary>
 
 ```markdown
 # Attendees Skill
@@ -265,4 +245,67 @@ If you encounter an authentication error (e.g., `401 Unauthorized`, `Invalid tok
 - **General:**
   - If an MCP tool returns an auth error, do not silently fail. Report the error to the user and explain that re-authorization is required to continue.
 ```
+
 </details>
+
+---
+
+## 🛠️ Manual Installation (For Coder / Terminal Users)
+
+If you prefer to install these files yourself via the command line:
+
+1. **Clone the repository:**
+   ```bash
+   git clone git@github.com:favorchurch/favor-skills.git ~/Git/favor-skills
+   ```
+2. **For Global installation (Gemini CLI / Antigravity):**
+   ```bash
+   mkdir -p ~/.gemini/skills
+   cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees ~/.gemini/skills/
+   ```
+3. **For Global installation (Claude Code):**
+   ```bash
+   mkdir -p ~/.claude/skills
+   cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees ~/.claude/skills/
+   ```
+4. **For Workspace installation (inside a specific project):**
+   ```bash
+   mkdir -p .agents/skills
+   cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees .agents/skills/
+   ```
+
+---
+
+## 📂 Repository Layout
+
+```text
+favor-skills/
+├── README.md                       # This file
+├── speak-like-favor/
+│   ├── SKILL.md                    # Voice & Tone Guidelines
+│   ├── references/
+│   │   └── qa-guidelines.md        # Extended QA standards
+│   └── agents/
+│       └── openai.yaml             # ChatGPT/Codex integration rules
+└── attendees/
+    └── SKILL.md                    # Attendee count workflow logic
+```
+
+---
+
+## ⚙️ Configuration & Credentials
+
+The repository itself does not store any credentials. However, some skills require specific credentials to run:
+
+- **`speak-like-favor`**: No external connections needed.
+- **`attendees`**: Requires access to the **Favor Event Tickets** and **Fluro** MCP servers.
+  - The AI will prompt you to run `mcp oauth login favor-event-tickets` or `mcp oauth login fluro-mcp` if authentication is missing or expired.
+
+---
+
+## 🤝 Contributing
+
+1. Create a branch from `main` (e.g. `feature/update-rules`).
+2. Make your edits to the relevant `SKILL.md` (these are the single sources of truth).
+3. If you change a skill's behavior, remember to also update the copy-paste prompt in this `README.md`.
+4. Submit a Pull Request.
