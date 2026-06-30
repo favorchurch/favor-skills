@@ -60,13 +60,17 @@ Set per-event config (env vars at the top of each script), then run in order. Sc
 6. **Send carefully** — `python3 scripts/smtp_send.py --dry-run` first: it prints ~5 sample messages; confirm each has a non-empty `In-Reply-To` header (threading), a personalized greeting, and a plain-text body, then a `would send N` line. Then `--limit 25` (warm-up; verify threading + inbox placement, not spam). Then `python3 scripts/smtp_send.py` (full, paced, resumable). `--status` for progress.
    - Note: `smtp_send.py` only sends the `bump_recent_send` rows. `fresh_send_no_record` rows have no original `Message-Id` to thread onto — resend those via the ticketing system's native resend instead, not this script.
 
-## Resuming (any agent, after any interruption)
+## Continue vs. start fresh
+**Default is CONTINUE (resume) — never start fresh unless the user explicitly asks.**
 ```bash
 source .bump_env
-python3 scripts/smtp_send.py --status   # remaining count
-python3 scripts/smtp_send.py            # resumes; skips keys already 'sent'
+python3 scripts/smtp_send.py --status   # show sent / remaining first
+python3 scripts/smtp_send.py            # CONTINUE (default): skips keys already 'sent'
+python3 scripts/smtp_send.py --fresh    # START OVER: only when the user explicitly says so
 ```
-The append-only state file (`*_state.jsonl`) is the single source of truth. Idempotent — safe to re-run; running again after completion sends nothing.
+- **Continue (default)** = resume; the append-only state file is the source of truth, idempotent, safe to re-run (running again after completion sends nothing). Use this unless told otherwise.
+- **Fresh** = opt-in **only** when the user explicitly says "start over" / "re-send everyone". `--fresh` archives the existing state file (`*_state.jsonl` → `.bak`, never deleted) and processes everyone again. Because it re-sends to all recipients, confirm before using it.
+- **State lives in YOUR workspace**, never the skill folder: progress + log default to `<cwd>/<csv-basename>_state.jsonl` / `_run.log` (override with `BUMP_STATE`/`BUMP_LOG`). The script **refuses** to write state inside the installed skill directory — so the skill stays clean and read-only, and each event's progress stays with that event's files.
 
 ## Threading (why bumps land in the right thread)
 Each reply sets `In-Reply-To` and `References` to the **original email's RFC822 `Message-Id`** (carried in the CSV). That is what makes Gmail thread the bump into the recipient's existing ticket conversation. Use a short **plain-text** body (no HTML/links/images) for best inbox placement.
@@ -85,6 +89,6 @@ Each reply sets `In-Reply-To` and `References` to the **original email's RFC822 
 - `scripts/fetch_bounces.py` — collect bounced recipient addresses from mailer-daemon notices.
 - `scripts/build_recipient_list.py` — join attendees ⨯ sent, dedupe by security code, exclude bounced/transferred → bump + fresh-send CSV.
 - `scripts/verify_threads.py` — independent inbox re-query to confirm thread IDs are live + correctly mapped.
-- `scripts/smtp_send.py` — resumable, paced, threaded SMTP-relay sender with `--status` / `--dry-run` / `--limit`.
+- `scripts/smtp_send.py` — resumable, paced, threaded SMTP-relay sender with `--status` / `--dry-run` / `--limit` / `--fresh` (default CONTINUE; `--fresh` archives state and re-sends everyone). Progress/log files live in your workspace, never the skill folder.
 
 Each script reads config from env vars (with sensible defaults) and supports being pointed at any event's artifacts. Edit the personalized body in `smtp_send.py:body_for()` per event, in your church/brand voice.

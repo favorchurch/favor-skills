@@ -44,7 +44,8 @@ Full gates, scripts, and threading details in [`SKILL.md`](SKILL.md). Helper scr
 | `/resend-conference-emails-carefully-with-smtp bump the QR tickets for FC26` | Full careful pipeline through validation, then pauses for warm-up confirmation. |
 | *"Build the recipient list and verify it, but don't send."* | Runs steps 1–5 only — gives you a validated CSV. |
 | *"Do the 25-email warm-up."* | `smtp_send.py --limit 25` — confirm threading + inbox placement. |
-| *"Send the rest."* | Resumes the full paced send (skips already-sent rows). |
+| *"Send the rest."* | **Continues** the full paced send (default; skips already-sent rows). |
+| *"Start over / re-send everyone."* | `smtp_send.py --fresh` — archives the old state file and re-sends all. Opt-in only; confirm first. |
 | *"What's the send status / how many are left?"* | `smtp_send.py --status`. |
 
 ---
@@ -58,7 +59,8 @@ Full gates, scripts, and threading details in [`SKILL.md`](SKILL.md). Helper scr
 
 ## Notes
 
-- The append-only state file makes the send **idempotent and resumable** by any agent.
+- The append-only state file makes the send **idempotent and resumable** by any agent. The default is **CONTINUE (resume)** — never start fresh unless explicitly asked. `--fresh` archives the state file (never deletes) and re-sends everyone.
+- **State + log live in your workspace** (`<cwd>/<csv-basename>_state.jsonl` / `_run.log`), never the installed skill folder — the script refuses to write inside the skill directory. Override with `BUMP_STATE` / `BUMP_LOG`.
 - Bumps use a short **plain-text** body (no links/images) for best inbox placement.
 - Edit `scripts/smtp_send.py:body_for()` to your event's wording before sending.
 

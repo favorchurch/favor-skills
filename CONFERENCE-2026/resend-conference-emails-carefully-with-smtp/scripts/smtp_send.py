@@ -8,15 +8,18 @@ References = the original RFC822 Message-Id (carried in the CSV).
   python3 smtp_send.py --status     # progress counts, no send
   python3 smtp_send.py --dry-run    # preview first 5 built messages, no send
   python3 smtp_send.py --limit 25   # send next 25 unsent (WARM-UP)
-  python3 smtp_send.py              # send all remaining (paced); resumes automatically
+  python3 smtp_send.py              # CONTINUE: send all remaining (paced), resuming from saved progress
+  python3 smtp_send.py --fresh      # START OVER: archive saved progress and re-send everyone
 
-Resume authority: the append-only state JSONL. Re-running after a crash skips
-every key already recorded 'sent'. Idempotent; safe to re-run.
+CONTINUE vs FRESH: by default the run CONTINUES from saved progress (skips every key
+already 'sent'). Pass --fresh to start over (the old state file is archived to a .bak,
+not deleted). Progress + log files ALWAYS live in your workspace (the dir you run from),
+never the installed skill folder.
 
 CONFIG via env (defaults target Favor Conference 2026):
   BUMP_CSV        recipient CSV (cols: bump_action, recipient_email, recipient_name,
                   security_code, gmail_thread_id, gmail_message_id, rfc822_message_id)
-  BUMP_STATE      state JSONL (default: <csv>.state.jsonl)
+  BUMP_STATE      state JSONL (default: <cwd>/<csv-basename>_state.jsonl — in your workspace)
   BUMP_SUBJECT    reply subject (keep the "Re: <original subject>")
   BUMP_FROM_NAME / BUMP_FROM_ADDR
   BUMP_SMTP_USER / BUMP_SMTP_PASS   SMTP relay creds (app password)
@@ -27,8 +30,17 @@ from email.message import EmailMessage
 from datetime import datetime, timezone
 
 CSV_PATH   = os.environ.get("BUMP_CSV", "FC26_qr_bump_list_20260629.csv")
-STATE_PATH = os.environ.get("BUMP_STATE", CSV_PATH.rsplit(".", 1)[0] + "_state.jsonl")
-LOG_PATH   = os.environ.get("BUMP_LOG", CSV_PATH.rsplit(".", 1)[0] + "_run.log")
+# Progress (state) + log ALWAYS live in your workspace (the current dir you run from),
+# never the installed skill folder. Default filenames derive from the CSV basename.
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+WORKSPACE  = os.getcwd()
+_BASE      = os.path.basename(CSV_PATH).rsplit(".", 1)[0]
+STATE_PATH = os.environ.get("BUMP_STATE", os.path.join(WORKSPACE, _BASE + "_state.jsonl"))
+LOG_PATH   = os.environ.get("BUMP_LOG",   os.path.join(WORKSPACE, _BASE + "_run.log"))
+for _p in (STATE_PATH, LOG_PATH):
+    if os.path.abspath(_p).startswith(SCRIPT_DIR + os.sep):
+        raise SystemExit(f"Refusing to write progress inside the skill folder: {_p}\n"
+                         "Run from your workspace, or set BUMP_STATE/BUMP_LOG to a workspace path.")
 SUBJECT    = os.environ.get("BUMP_SUBJECT", "Re: Your QR TICKETS for Favor Conference 2026 are here!")
 FROM_NAME  = os.environ.get("BUMP_FROM_NAME", "Favor Church")
 FROM_ADDR  = os.environ.get("BUMP_FROM_ADDR", "conferences@favor.church")
@@ -139,18 +151,28 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--status", action="store_true")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--fresh", action="store_true",
+                    help="start over: ignore saved progress (archives the old state file) and re-send everyone. Default is to CONTINUE from saved progress.")
     args = ap.parse_args()
 
     if args.status:
         return cmd_status()
 
     rows = load_rows()
-    sent = load_sent_keys()
+    if args.fresh:
+        if not args.dry_run and os.path.exists(STATE_PATH):
+            bak = STATE_PATH + "." + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ") + ".bak"
+            os.rename(STATE_PATH, bak)
+            log(f"--fresh: archived previous progress to {os.path.basename(bak)}; starting over from scratch")
+        sent = set()
+    else:
+        sent = load_sent_keys()   # CONTINUE: skip everyone already marked sent
     todo = [r for r in rows if key_for(r) not in sent]
     todo.sort(key=lambda r: r.get("latest_send_date_utc", ""))  # OLDEST original send first
     if args.limit:
         todo = todo[:args.limit]
-    log(f"start: {len(rows)} total bump rows | {len(rows)-len([r for r in rows if key_for(r) not in sent])} already sent | {len(todo)} to process this run")
+    mode = "FRESH (start over)" if args.fresh else "CONTINUE (resume)"
+    log(f"start [{mode}]: {len(rows)} total bump rows | {len(rows)-len(todo)} skipped (already sent) | {len(todo)} to process this run")
 
     if args.dry_run:
         for r in todo[:5]:
