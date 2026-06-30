@@ -162,10 +162,14 @@ A paste is not "done" until read back. Fetch from the live sheet and confirm all
 
 1. **Last data row** — `GOOGLESHEETS_BATCH_GET` for the first column from `data_start` downward; the last populated row must equal `data_start + (CSV data rows) − 1`. A short fall-off means the paste truncated → re-run Step 6, do not report success.
 2. **Column alignment** — spot-check a mid-sheet row (e.g. row 100): a known column (First Name / Order Status) is populated and in the right place.
-3. **SUMMARY count** — read the SUMMARY tab's headline totals (and/or the MASTERLIST top-area count cells). They must be **non-zero** and consistent with `total_attendees` from Step 1 (allow small drift — registrations are live). Zeros or wildly-off numbers mean misalignment → fix and re-paste.
+3. **SUMMARY count** — read the SUMMARY tab's headline totals (and/or the MASTERLIST top-area count cells). They must be **non-zero** and consistent with `total_attendees` from Step 1 (allow small drift — registrations are live). Zeros or wildly-off numbers mean the **MASTERLIST data/paste is wrong → fix THAT and re-paste.**
 4. **Timestamp** — the cell from Step 4 now shows the time you wrote.
 
-If any check fails, **say so plainly and fix it** — never fabricate a count or a spreadsheet ID, never report "success" on an unverified or partial paste.
+> ⛔ **INTEGRITY GUARDRAIL — never edit SUMMARY (or the count cells) to hit the target.** The SUMMARY tab and the MASTERLIST top-area count cells are formula-driven, **read-only indicators** — they are how you *check* the result, never something you *write* to in order to pass. You must NEVER replace a formula with a literal value, hardcode a number, or alter a formula so it outputs the expected total. The count is correct **only** as a side effect of a complete, correctly-aligned MASTERLIST paste — never by touching the summary. If a count is wrong, the fault is in the MASTERLIST data; fix the paste, not the summary. **Doctoring the summary to fit the target is data falsification and a FAILED run, even if the numbers then look right.**
+>
+> **One narrow exception:** if your paste genuinely **shifted MASTERLIST column positions** (e.g. a new column landed mid-table), a SUMMARY formula that points at specific MASTERLIST columns may now read the wrong column. You MAY update that formula's **range/column references** so it reads the correct, shifted columns again — that repairs the formula to compute *honestly*. You still may NOT change what it computes or force a value. Better: avoid shifting existing columns at all — append new CSV columns to the right (Step 5 merge rule) so SUMMARY formulas keep working untouched and this exception never applies.
+
+If any check fails, **say so plainly and fix the underlying paste** — never fabricate a count or a spreadsheet ID, never edit SUMMARY to fake a pass, never report "success" on an unverified or partial paste.
 
 ### Step 8 — Report
 
@@ -208,5 +212,5 @@ The Favor Conference 2026 sheet has extra tabs that this skill must **not** writ
 - **Never write empty `values` arrays** — not even "to test." It silently blanks rows. If the parsed CSV has zero data rows, abort and report.
 - **Column merge rule:** Never shift existing column positions. New CSV columns go to the right of the last sheet column.
 - **Never fabricate** spreadsheet IDs, counts, or "success." Every value reported comes from a real read-back (Step 7.5).
-- **Don't touch SUMMARY / segment / `Claude Cache` tabs.** SUMMARY and segment tabs are formula-driven and recompute from MASTERLIST. `Claude Cache` is reserved for `=CLAUDE` functions — editing it breaks them.
+- **Don't touch SUMMARY / segment / `Claude Cache` tabs.** SUMMARY and segment tabs are formula-driven and recompute from MASTERLIST. `Claude Cache` is reserved for `=CLAUDE` functions — editing it breaks them. **Never write into SUMMARY (or the count cells) to force a total to "match"** — that's data falsification (see the integrity guardrail in Step 7.5). The lone exception is re-pointing a formula's column references after a genuine column shift — never changing the value it computes.
 - **Success criterion:** the paste is only complete when the **SUMMARY tab shows correct, non-zero counts** consistent with the live attendee total, MASTERLIST is fully populated (verified last row), and the timestamp cell is updated.
