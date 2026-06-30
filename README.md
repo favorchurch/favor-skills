@@ -6,115 +6,153 @@ These "skills" are custom instructions, guidelines, and workflows. They teach AI
 
 ---
 
-## ⚡ Instant Install via AI Assistant (Recommended)
+## ⚡ Install via AI Assistant
 
-If you are using a terminal-enabled AI assistant (like **Claude Code**, **Gemini CLI / Antigravity**, **Cursor**, or **Windsurf**), you don't need to run any terminal commands yourself!
+Paste a prompt directly into your AI's chat. The prompts below work in three tiers — **pick the section that matches your environment.**
 
-### Install All Core Skills
+---
 
-Just **copy the prompt below** and paste it directly into your AI's chat box:
+### 🖥️ Terminal AI (Claude Code, Gemini CLI, Cursor, Windsurf)
+
+These prompts try `git` first for speed, fall back to `curl` + zip if git is unavailable, and work in cloud instances.
+
+#### Install Core Skill (`speak-like-favor`)
 
 ```text
-I want to install the Favor Church AI skills as plugins/skills in my AI agent environment.
-Please execute the following steps:
-1. Clone the repository `https://github.com/favorchurch/favor-skills.git` to `~/Git/favor-skills` (create or update the directory if needed).
-2. Install the skills (`speak-like-favor` folder) by copying them into the appropriate global and/or workspace-level folders for my assistant:
-   - If you are Gemini CLI / Antigravity: Copy them to `~/.gemini/skills/` (global) and/or `.agents/skills/` (workspace).
-   - If you are Claude Code: Copy them to `~/.claude/skills/` (global) and/or `.agents/skills/` (workspace).
-   - If you are Cursor / Windsurf: Copy them to `.agents/skills/` in the workspace, or generate a `.cursorrules` file using the rules from `speak-like-favor/SKILL.md` in the workspace root.
-3. Verify that the files are properly copied.
-Please check if you have command execution or file system capabilities. If you do, go ahead and install these skills now!
+Install the Favor Church "speak-like-favor" skill into my AI agent's global skills directory.
+
+Try each method in order until one succeeds:
+
+Method A — git (fastest):
+  git clone https://github.com/favorchurch/favor-skills.git /tmp/favor-skills 2>/dev/null || git -C /tmp/favor-skills pull
+  then copy /tmp/favor-skills/speak-like-favor into the skills directory.
+
+Method B — curl (no git needed):
+  curl -L https://github.com/favorchurch/favor-skills/archive/refs/heads/main.zip -o /tmp/favor-skills.zip
+  unzip -q -o /tmp/favor-skills.zip -d /tmp/favor-skills-extract
+  then copy /tmp/favor-skills-extract/favor-skills-main/speak-like-favor into the skills directory.
+
+Skills directory:
+  - Claude Code / Claude CLI: ~/.claude/skills/
+  - Gemini CLI / Antigravity: ~/.gemini/skills/
+  - Cursor / Windsurf: .agents/skills/ inside the current workspace
+
+After copying, confirm the SKILL.md file is present at the destination.
 ```
 
-### Install All Conference Skills
-
-To install all 6 conference-related skills at once, paste this prompt:
+#### Install All Conference Skills
 
 ```text
-I want to install the Favor Conference AI skills as plugins/skills in my AI agent environment.
-Please execute the following steps:
-1. Clone or update the repository `https://github.com/favorchurch/favor-skills.git` at `~/Git/favor-skills`.
-2. Navigate to the `CONFERENCE-SKILLS` subfolder inside the cloned repo.
-3. Install all skill folders inside `CONFERENCE-SKILLS` (attendees, ticket-transfer, triage-conference, financial-assistance, export-attendees, resend-conference-emails-carefully-with-smtp, update-unique-churches) by copying them into the appropriate global skills folder:
-   - If you are Claude Code: Copy them to `~/.claude/skills/`
-   - If you are Gemini CLI / Antigravity: Copy them to `~/.gemini/skills/`
-   - If you are Cursor / Windsurf: Copy them to `.agents/skills/` in the workspace.
-4. Verify that all skill folders are present in the target directory.
-Please check if you have command execution or file system capabilities. If you do, go ahead and install these skills now!
+Install all Favor Church conference skills into my AI agent's global skills directory.
+
+Skills to install (all are inside the CONFERENCE-SKILLS/ subfolder of the repo):
+  attendees, ticket-transfer, triage-conference, financial-assistance,
+  export-attendees, resend-conference-emails-carefully-with-smtp, update-unique-churches
+
+Try each method in order until one succeeds:
+
+Method A — git (fastest):
+  git clone https://github.com/favorchurch/favor-skills.git /tmp/favor-skills 2>/dev/null || git -C /tmp/favor-skills pull
+  then copy every folder inside /tmp/favor-skills/CONFERENCE-SKILLS/ into the skills directory.
+
+Method B — curl (no git needed):
+  curl -L https://github.com/favorchurch/favor-skills/archive/refs/heads/main.zip -o /tmp/favor-skills.zip
+  unzip -q -o /tmp/favor-skills.zip -d /tmp/favor-skills-extract
+  then copy every folder inside /tmp/favor-skills-extract/favor-skills-main/CONFERENCE-SKILLS/ into the skills directory.
+
+Skills directory:
+  - Claude Code / Claude CLI: ~/.claude/skills/
+  - Gemini CLI / Antigravity: ~/.gemini/skills/
+  - Cursor / Windsurf: .agents/skills/ inside the current workspace
+
+After copying, list the installed skill folder names to confirm.
 ```
 
-### Uninstall All Conference Skills
+#### Install a Single Conference Skill
 
-To remove all conference skills from your environment:
+Replace `SKILL_NAME` with one of:
+`attendees` · `ticket-transfer` · `triage-conference` · `financial-assistance` · `export-attendees` · `resend-conference-emails-carefully-with-smtp` · `update-unique-churches`
 
 ```text
-Please remove the Favor Conference AI skills from my AI agent environment.
-Delete the following skill folders from my global skills directory:
-- attendees
-- ticket-transfer
-- triage-conference
-- financial-assistance
-- export-attendees
-- resend-conference-emails-carefully-with-smtp
-- update-unique-churches
+Install the Favor Church "SKILL_NAME" skill into my AI agent's global skills directory.
+
+Try each method in order until one succeeds:
+
+Method A — git (fastest):
+  git clone https://github.com/favorchurch/favor-skills.git /tmp/favor-skills 2>/dev/null || git -C /tmp/favor-skills pull
+  then copy /tmp/favor-skills/CONFERENCE-SKILLS/SKILL_NAME into the skills directory.
+
+Method B — curl (no git needed, single-file skills only):
+  mkdir -p ~/.claude/skills/SKILL_NAME
+  curl -L "https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/SKILL_NAME/SKILL.md" \
+       -o ~/.claude/skills/SKILL_NAME/SKILL.md
+
+Method C — curl zip (for skills with multiple files):
+  curl -L https://github.com/favorchurch/favor-skills/archive/refs/heads/main.zip -o /tmp/favor-skills.zip
+  unzip -q -o /tmp/favor-skills.zip "favor-skills-main/CONFERENCE-SKILLS/SKILL_NAME/*" -d /tmp/favor-skills-extract
+  then copy /tmp/favor-skills-extract/favor-skills-main/CONFERENCE-SKILLS/SKILL_NAME into the skills directory.
+
+Skills directory:
+  - Claude Code / Claude CLI: ~/.claude/skills/
+  - Gemini CLI / Antigravity: ~/.gemini/skills/
+  - Cursor / Windsurf: .agents/skills/ inside the current workspace
+
+Confirm the SKILL.md is present at the destination.
+```
+
+#### Uninstall All Conference Skills
+
+```text
+Remove all Favor Church conference skills from my AI agent's global skills directory.
+
+Delete these folders:
+  attendees, ticket-transfer, triage-conference, financial-assistance,
+  export-attendees, resend-conference-emails-carefully-with-smtp, update-unique-churches
 
 From:
-   - Claude Code: `~/.claude/skills/`
-   - Gemini CLI / Antigravity: `~/.gemini/skills/`
-   - Cursor / Windsurf: `.agents/skills/` in the workspace.
+  - Claude Code / Claude CLI: ~/.claude/skills/
+  - Gemini CLI / Antigravity: ~/.gemini/skills/
+  - Cursor / Windsurf: .agents/skills/ in the current workspace
 
-Please check if you have command execution or file system capabilities. If you do, go ahead and remove these skills now!
-```
-
-### Install a Single Conference Skill
-
-You can install any one skill individually. Replace `<skill-name>` with one of:
-`attendees`, `ticket-transfer`, `triage-conference`, `financial-assistance`, `export-attendees`, `resend-conference-emails-carefully-with-smtp`, `update-unique-churches`
-
-```text
-Please install the `<skill-name>` skill from the Favor Church skills repository.
-1. Clone or update `https://github.com/favorchurch/favor-skills.git` at `~/Git/favor-skills`.
-2. Copy the folder `~/Git/favor-skills/CONFERENCE-SKILLS/<skill-name>` into my global skills directory:
-   - Claude Code: `~/.claude/skills/`
-   - Gemini CLI / Antigravity: `~/.gemini/skills/`
-   - Cursor / Windsurf: `.agents/skills/` in the workspace.
-3. Verify the folder is present at the destination.
-```
-
-Or use these ready-made one-liners (copy the one that matches your skill):
-
-```text
-Install the `attendees` skill from ~/Git/favor-skills/CONFERENCE-SKILLS/ into ~/.claude/skills/
-```
-```text
-Install the `ticket-transfer` skill from ~/Git/favor-skills/CONFERENCE-SKILLS/ into ~/.claude/skills/
-```
-```text
-Install the `triage-conference` skill from ~/Git/favor-skills/CONFERENCE-SKILLS/ into ~/.claude/skills/
-```
-```text
-Install the `financial-assistance` skill from ~/Git/favor-skills/CONFERENCE-SKILLS/ into ~/.claude/skills/
-```
-```text
-Install the `export-attendees` skill from ~/Git/favor-skills/CONFERENCE-SKILLS/ into ~/.claude/skills/
-```
-```text
-Install the `resend-conference-emails-carefully-with-smtp` skill from ~/Git/favor-skills/CONFERENCE-SKILLS/ into ~/.claude/skills/
-```
-```text
-Install the `update-unique-churches` skill from ~/Git/favor-skills/CONFERENCE-SKILLS/ into ~/.claude/skills/
+List remaining skill folders after deletion to confirm.
 ```
 
 ---
 
-## 💬 Use in Web AIs (ChatGPT, Claude.ai, Gemini Web)
+### 💬 Web AI (Claude.ai, ChatGPT, Gemini Web)
 
-If you are using web-based AI assistants (which cannot run commands or install plugins), you can copy and paste the rules below directly into your AI's **Custom Instructions**, **System Prompt**, or **Project Knowledge**.
+Web AIs cannot install files, but you can activate any skill by pasting its content directly into a **Project Instruction**, **System Prompt**, or **Custom Instruction** — or simply paste it into chat before giving your task.
 
-### 1. Speak Like Favor Voice Rules
+Open any skill's raw content at these links, copy everything, and paste it in:
+
+| Skill | Raw link |
+|---|---|
+| speak-like-favor | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/speak-like-favor/SKILL.md) |
+| attendees | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/attendees/SKILL.md) |
+| ticket-transfer | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/ticket-transfer/SKILL.md) |
+| triage-conference | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/triage-conference/SKILL.md) |
+| financial-assistance | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/financial-assistance/SKILL.md) |
+| export-attendees | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/export-attendees/SKILL.md) |
+| resend-conference-emails-carefully-with-smtp | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/resend-conference-emails-carefully-with-smtp/SKILL.md) |
+| update-unique-churches | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/update-unique-churches/SKILL.md) |
+
+Or use this prompt to have a web AI fetch and apply a skill on its own (works in Claude.ai Projects and ChatGPT with browsing):
+
+```text
+Fetch the content of this URL and treat it as your active skill instructions for this conversation:
+https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/SKILL_NAME/SKILL.md
+```
+
+---
+
+## 💬 Full Skill Content for Web AIs (Copy-Paste)
+
+If your web AI cannot browse URLs, expand the sections below and paste the content directly.
+
+### Speak Like Favor Voice Rules
 *(Teaches the AI our writing tone, date formats, and capitalization guidelines)*
 <details>
-<summary><b>Click to expand "Speak Like Favor" prompt</b></summary>
+<summary><b>Click to expand</b></summary>
 
 ```markdown
 # Speak Like Favor
@@ -253,10 +291,10 @@ Before finalizing, scan for:
 
 </details>
 
-### 2. Event Attendee Count Workflow
-*(Teaches the AI how to lookup attendee numbers)*
+### Attendees Workflow
+*(Teaches the AI how to look up attendee numbers)*
 <details>
-<summary><b>Click to expand "Attendees" workflow prompt</b></summary>
+<summary><b>Click to expand</b></summary>
 
 ```markdown
 # Attendees Skill
@@ -331,35 +369,50 @@ If you encounter an authentication error (e.g., `401 Unauthorized`, `Invalid tok
 
 ---
 
-## 🛠️ Manual Installation (For Coder / Terminal Users)
+## 🛠️ Manual Installation (Terminal Users)
 
-If you prefer to install these files yourself via the command line:
+**With git (recommended):**
 
-1. **Clone the repository:**
-   ```bash
-   git clone git@github.com:favorchurch/favor-skills.git ~/Git/favor-skills
-   ```
-2. **For Global installation (Gemini CLI / Antigravity):**
-   ```bash
-   mkdir -p ~/.gemini/skills
-   cp -r ~/Git/favor-skills/speak-like-favor ~/.gemini/skills/
-   # Optional: install conference skills
-   cp -r ~/Git/favor-skills/CONFERENCE-SKILLS/attendees ~/.gemini/skills/
-   ```
-3. **For Global installation (Claude Code):**
-   ```bash
-   mkdir -p ~/.claude/skills
-   cp -r ~/Git/favor-skills/speak-like-favor ~/.claude/skills/
-   # Optional: install conference skills
-   cp -r ~/Git/favor-skills/CONFERENCE-SKILLS/attendees ~/.claude/skills/
-   ```
-4. **For Workspace installation (inside a specific project):**
-   ```bash
-   mkdir -p .agents/skills
-   cp -r ~/Git/favor-skills/speak-like-favor .agents/skills/
-   # Optional: install conference skills
-   cp -r ~/Git/favor-skills/CONFERENCE-SKILLS/attendees .agents/skills/
-   ```
+```bash
+git clone https://github.com/favorchurch/favor-skills.git /tmp/favor-skills
+
+# Claude Code — core + all conference skills
+mkdir -p ~/.claude/skills
+cp -r /tmp/favor-skills/speak-like-favor ~/.claude/skills/
+cp -r /tmp/favor-skills/CONFERENCE-SKILLS/. ~/.claude/skills/
+
+# Gemini CLI — core + all conference skills
+mkdir -p ~/.gemini/skills
+cp -r /tmp/favor-skills/speak-like-favor ~/.gemini/skills/
+cp -r /tmp/favor-skills/CONFERENCE-SKILLS/. ~/.gemini/skills/
+
+# Workspace (Cursor / Windsurf / any project)
+mkdir -p .agents/skills
+cp -r /tmp/favor-skills/speak-like-favor .agents/skills/
+cp -r /tmp/favor-skills/CONFERENCE-SKILLS/. .agents/skills/
+```
+
+**Without git (curl + unzip):**
+
+```bash
+curl -L https://github.com/favorchurch/favor-skills/archive/refs/heads/main.zip \
+     -o /tmp/favor-skills.zip
+unzip -q -o /tmp/favor-skills.zip -d /tmp/favor-skills-extract
+
+# Claude Code — core + all conference skills
+mkdir -p ~/.claude/skills
+cp -r /tmp/favor-skills-extract/favor-skills-main/speak-like-favor ~/.claude/skills/
+cp -r /tmp/favor-skills-extract/favor-skills-main/CONFERENCE-SKILLS/. ~/.claude/skills/
+```
+
+**Single skill, no git (curl direct — SKILL.md only):**
+
+```bash
+SKILL=ticket-transfer  # change this to any skill name
+mkdir -p ~/.claude/skills/$SKILL
+curl -L "https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/$SKILL/SKILL.md" \
+     -o ~/.claude/skills/$SKILL/SKILL.md
+```
 
 ---
 
