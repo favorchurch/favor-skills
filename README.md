@@ -121,27 +121,18 @@ List remaining skill folders after deletion to confirm.
 
 ### 💬 Web AI (Claude.ai, ChatGPT, Gemini Web)
 
-Web AIs cannot install files, but you can activate any skill by pasting its content directly into a **Project Instruction**, **System Prompt**, or **Custom Instruction** — or simply paste it into chat before giving your task.
+Web AIs cannot install files. Instead, paste a ready-made prompt directly into chat — the AI will fetch the skill and activate it for that conversation. These prompts also work in **Claude.ai Projects** and **ChatGPT with browsing** as persistent instructions.
 
-Open any skill's raw content at these links, copy everything, and paste it in:
-
-| Skill | Raw link |
+| Skill | Prompt to paste |
 |---|---|
-| speak-like-favor | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/speak-like-favor/SKILL.md) |
-| attendees | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/attendees/SKILL.md) |
-| ticket-transfer | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/ticket-transfer/SKILL.md) |
-| triage-conference | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/triage-conference/SKILL.md) |
-| financial-assistance | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/financial-assistance/SKILL.md) |
-| export-attendees | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/export-attendees/SKILL.md) |
-| resend-conference-emails-carefully-with-smtp | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/resend-conference-emails-carefully-with-smtp/SKILL.md) |
-| update-unique-churches | [SKILL.md](https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/update-unique-churches/SKILL.md) |
-
-Or use this prompt to have a web AI fetch and apply a skill on its own (works in Claude.ai Projects and ChatGPT with browsing):
-
-```text
-Fetch the content of this URL and treat it as your active skill instructions for this conversation:
-https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/SKILL_NAME/SKILL.md
-```
+| speak-like-favor | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/speak-like-favor/SKILL.md and follow it as your active writing and voice guidelines for this conversation.` |
+| attendees | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/attendees/SKILL.md and follow it as your active skill instructions for looking up event attendee counts.` |
+| ticket-transfer | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/ticket-transfer/SKILL.md and follow it as your active skill instructions for handling ticket transfers.` |
+| triage-conference | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/triage-conference/SKILL.md and follow it as your active skill instructions for conference attendee triage.` |
+| financial-assistance | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/financial-assistance/SKILL.md and follow it as your active skill instructions for handling financial assistance applications.` |
+| export-attendees | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/export-attendees/SKILL.md and follow it as your active skill instructions for exporting attendee lists.` |
+| resend-conference-emails-carefully-with-smtp | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/resend-conference-emails-carefully-with-smtp/SKILL.md and follow it as your active skill instructions for safely resending conference emails via SMTP.` |
+| update-unique-churches | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/update-unique-churches/SKILL.md and follow it as your active skill instructions for updating the unique churches count.` |
 
 ---
 
