@@ -68,38 +68,6 @@ Skills directory:
 After copying, list the installed skill folder names to confirm.
 ```
 
-#### Install a Single Conference Skill
-
-Replace `SKILL_NAME` with one of:
-`attendees` · `ticket-transfer` · `triage-conference` · `financial-assistance` · `export-attendees` · `resend-conference-emails-carefully-with-smtp` · `update-unique-churches`
-
-```text
-Install the Favor Church "SKILL_NAME" skill into my AI agent's global skills directory.
-
-Try each method in order until one succeeds:
-
-Method A — git (fastest):
-  git clone https://github.com/favorchurch/favor-skills.git /tmp/favor-skills 2>/dev/null || git -C /tmp/favor-skills pull
-  then copy /tmp/favor-skills/CONFERENCE-SKILLS/SKILL_NAME into the skills directory.
-
-Method B — curl (no git needed, single-file skills only):
-  mkdir -p ~/.claude/skills/SKILL_NAME
-  curl -L "https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/SKILL_NAME/SKILL.md" \
-       -o ~/.claude/skills/SKILL_NAME/SKILL.md
-
-Method C — curl zip (for skills with multiple files):
-  curl -L https://github.com/favorchurch/favor-skills/archive/refs/heads/main.zip -o /tmp/favor-skills.zip
-  unzip -q -o /tmp/favor-skills.zip "favor-skills-main/CONFERENCE-SKILLS/SKILL_NAME/*" -d /tmp/favor-skills-extract
-  then copy /tmp/favor-skills-extract/favor-skills-main/CONFERENCE-SKILLS/SKILL_NAME into the skills directory.
-
-Skills directory:
-  - Claude Code / Claude CLI: ~/.claude/skills/
-  - Gemini CLI / Antigravity: ~/.gemini/skills/
-  - Cursor / Windsurf: .agents/skills/ inside the current workspace
-
-Confirm the SKILL.md is present at the destination.
-```
-
 #### Uninstall All Conference Skills
 
 ```text
@@ -396,14 +364,6 @@ cp -r /tmp/favor-skills-extract/favor-skills-main/speak-like-favor ~/.claude/ski
 cp -r /tmp/favor-skills-extract/favor-skills-main/CONFERENCE-SKILLS/. ~/.claude/skills/
 ```
 
-**Single skill, no git (curl direct — SKILL.md only):**
-
-```bash
-SKILL=ticket-transfer  # change this to any skill name
-mkdir -p ~/.claude/skills/$SKILL
-curl -L "https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/$SKILL/SKILL.md" \
-     -o ~/.claude/skills/$SKILL/SKILL.md
-```
 
 ---
 
