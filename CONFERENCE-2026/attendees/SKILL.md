@@ -7,6 +7,17 @@ description: Count registered or checked-in attendees for an event using Favor E
 
 Count attendees for any event by checking Favor Event Tickets (WordPress/WooCommerce) first, then Fluro as a fallback.
 
+## Prerequisites
+
+Each requirement below is a **capability bucket** — any one of the listed tools satisfies it. Run this preflight before counting. If a **Required** bucket has no connected tool, explain what it is, why this skill needs it, and how to connect one of the options, then **stop and ask the user to set it up** — never fake or guess a count. For **Optional** buckets, note the gap and proceed with reduced coverage.
+
+| Capability | Type | Satisfied by (any one) | If missing |
+|---|---|---|---|
+| **Event Tickets Access** | Required | Favor Event Tickets MCP | Authoritative source for ticketed events. If not connected/authenticated, tell the user and ask them to run `mcp oauth login favor-event-tickets`, then wait. Do not proceed to Fluro until this is connected. |
+| **Fluro Access** | Optional (fallback) | Fluro for Favor Church MCP | Used only for non-ticketed/internal events (RSVP forms, check-ins). If missing, warn that small-group, prayer, or internal events can't be checked, then report what Event Tickets returns. Prompt `mcp oauth login fluro-mcp` only if a fallback is actually needed. |
+
+See **Error Handling** below for full auth-error recovery once a connection drops mid-run.
+
 ## Workflow
 
 ### Step 1 — Authenticate Favor Event Tickets first

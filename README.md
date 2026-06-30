@@ -6,34 +6,76 @@ These "skills" are custom instructions, guidelines, and workflows. They teach AI
 
 ---
 
-## ⚡ Instant Install via AI Assistant (Recommended)
+## ⚡ Install via AI Assistant
 
-If you are using a terminal-enabled AI assistant (like **Claude Code**, **Gemini CLI / Antigravity**, **Cursor**, or **Windsurf**), you don't need to run any terminal commands yourself!
+Paste a prompt directly into your AI's chat. The prompts below work in three tiers — **pick the section that matches your environment.**
 
-Just **copy the prompt below** and paste it directly into your AI's chat box:
+---
+
+### Prompts to Install Favor Skills
+
+Paste into any terminal-capable AI (Claude Code, Gemini CLI, Cursor, Windsurf, or a cloud instance).
+
+#### Install Core Skill (`speak-like-favor`)
 
 ```text
-I want to install the Favor Church AI skills as plugins/skills in my AI agent environment.
-Please execute the following steps:
-1. Clone the repository `https://github.com/favorchurch/favor-skills.git` to `~/Git/favor-skills` (create or update the directory if needed).
-2. Install the skills (`speak-like-favor` and `attendees` folders) by copying them into the appropriate global and/or workspace-level folders for my assistant:
-   - If you are Gemini CLI / Antigravity: Copy them to `~/.gemini/skills/` (global) and/or `.agents/skills/` (workspace).
-   - If you are Claude Code: Copy them to `~/.claude/skills/` (global) and/or `.agents/skills/` (workspace).
-   - If you are Cursor / Windsurf: Copy them to `.agents/skills/` in the workspace, or generate a `.cursorrules` file using the rules from `speak-like-favor/SKILL.md` in the workspace root.
-3. Verify that the files are properly copied.
-Please check if you have command execution or file system capabilities. If you do, go ahead and install these skills now!
+Install the "speak-like-favor" folder from https://github.com/favorchurch/favor-skills into my AI agent's global skills directory, then confirm SKILL.md is present.
+```
+
+#### Install All Conference Skills
+
+```text
+Install every folder inside CONFERENCE-2026/ from https://github.com/favorchurch/favor-skills into my AI agent's global skills directory, then list the installed skill names to confirm. After installing, check each skill's Prerequisites and tell me which skills still need an MCP connection or tool I haven't set up yet. Don't block the install, just list what's missing so I know what to connect.
+```
+
+#### Uninstall All Conference Skills
+
+```text
+Remove all Favor Church conference skills from my AI agent's global skills directory.
+
+Delete these folders:
+  attendees, ticket-transfer, triage-conference, financial-assistance,
+  export-attendees, resend-conference-emails-carefully-with-smtp, update-unique-churches
+
+From:
+  - Claude Code / Claude CLI: ~/.claude/skills/
+  - Gemini CLI / Antigravity: ~/.gemini/skills/
+  - Cursor / Windsurf: .agents/skills/ in the current workspace
+
+List remaining skill folders after deletion to confirm.
 ```
 
 ---
 
-## 💬 Use in Web AIs (ChatGPT, Claude.ai, Gemini Web)
+### Install Individual Skills
 
-If you are using web-based AI assistants (which cannot run commands or install plugins), you can copy and paste the rules below directly into your AI's **Custom Instructions**, **System Prompt**, or **Project Knowledge**.
+Paste directly into any AI — web or terminal. Works in Claude.ai Projects and ChatGPT with browsing as persistent instructions.
 
-### 1. Speak Like Favor Voice Rules
+> **Requirements column:** these are the *capabilities* a skill needs **to run**, not to install. Installing a skill never checks them. Each requirement is a **capability bucket** (e.g. "Gmail Draft Access"), and any one of several interchangeable tools can satisfy it — the [Configuration & Credentials](#️-configuration--credentials) section lists the tool options for each bucket. When you actually use a skill, it runs a quick preflight: if a **Required** capability has no connected tool, it explains what's missing and how to connect one, then pauses; **Optional** capabilities just produce a warning and the skill continues.
+
+| Skill | Description | Requirements (capability buckets) | Prompt to paste |
+|---|---|---|---|
+| `speak-like-favor` | Favor Church Manila voice and tone — drafting, editing, and QA-ing emails, announcements, invitations, and church copy | None | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/speak-like-favor/SKILL.md and follow it as your active writing and voice guidelines for this conversation.` |
+| `attendees` | Look up registered or checked-in attendee counts for any event via Favor Event Tickets or Fluro | **Event Tickets Access** (required) · **Fluro Access** (optional fallback) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/attendees/SKILL.md and follow it as your active skill instructions for looking up event attendee counts.` |
+| `ticket-transfer` | End-to-end workflow for processing ticket transfer requests from the Fluro kanban, including attendee updates and confirmation emails | **Fluro Access** + **Event Tickets Access** (required) · **Gmail Draft Access** (required for emails) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/ticket-transfer/SKILL.md and follow it as your active skill instructions for handling ticket transfers.` |
+| `triage-conference` | Triage the conferences@favor.church inbox, draft smart replies, and surface Favor Event Tickets action items | **Gmail Draft Access** + bundled KB (required) · **Event Tickets Access** (required for actions) · **Fluro Access** (optional) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/triage-conference/SKILL.md and follow it as your active skill instructions for conference attendee triage.` |
+| `financial-assistance` | Process financial assistance applications — coupon assignment, request tracking, Gmail drafts, and Fluro kanban updates | **Fluro Access** + **Google Sheets Access** + **Gmail Draft Access** (send-as `conferences@favor.church`) (required) · **Event Tickets Access** (live prices, has fallback) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/financial-assistance/SKILL.md and follow it as your active skill instructions for handling financial assistance applications.` |
+| `export-attendees` | Sync and export attendee data from Favor Event Tickets into a Google Sheets masterlist | **Event Tickets Access** + **Google Sheets Access** + **Shell & Python** (required) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/export-attendees/SKILL.md and follow it as your active skill instructions for exporting attendee lists.` |
+| `resend-conference-emails-carefully-with-smtp` | Safely re-send or bulk-bump QR ticket emails to many attendees via SMTP relay without hitting Gmail's daily cap | **Event Tickets Access** + **Gmail Read Access** + **Workspace SMTP Relay** + **Shell & Python** (all required) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/resend-conference-emails-carefully-with-smtp/SKILL.md and follow it as your active skill instructions for safely resending conference emails via SMTP.` |
+| `update-unique-churches` | Recount and update the unique churches represented in the conference attendance Google Sheet | **Google Sheets Access** + **Shell & Python** (required) · web search (optional) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/update-unique-churches/SKILL.md and follow it as your active skill instructions for updating the unique churches count.` |
+
+> Each skill folder also has its own **README.md** with a deeper usage guide and more recipes. Browse them in [`CONFERENCE-2026/`](CONFERENCE-2026/) and [`speak-like-favor/`](speak-like-favor/).
+
+---
+
+## 💬 Full Skill Content for Web AIs (Copy-Paste)
+
+If your web AI cannot browse URLs, expand the sections below and paste the content directly.
+
+### Speak Like Favor Voice Rules
 *(Teaches the AI our writing tone, date formats, and capitalization guidelines)*
 <details>
-<summary><b>Click to expand "Speak Like Favor" prompt</b></summary>
+<summary><b>Click to expand</b></summary>
 
 ```markdown
 # Speak Like Favor
@@ -172,10 +214,10 @@ Before finalizing, scan for:
 
 </details>
 
-### 2. Event Attendee Count Workflow
-*(Teaches the AI how to lookup attendee numbers)*
+### Attendees Workflow
+*(Teaches the AI how to look up attendee numbers)*
 <details>
-<summary><b>Click to expand "Attendees" workflow prompt</b></summary>
+<summary><b>Click to expand</b></summary>
 
 ```markdown
 # Attendees Skill
@@ -250,56 +292,157 @@ If you encounter an authentication error (e.g., `401 Unauthorized`, `Invalid tok
 
 ---
 
-## 🛠️ Manual Installation (For Coder / Terminal Users)
+## 🍳 Prompt Recipes
 
-If you prefer to install these files yourself via the command line:
+Each skill works two ways: type its **slash command** (e.g. `/attendees ...`) where skills are installed as commands (Claude Code, Codex, and similar), or just **ask in plain language** anywhere — the skill triggers on intent. The recipes below show the slash form; the italic plain-English version works too.
 
-1. **Clone the repository:**
-   ```bash
-   git clone git@github.com:favorchurch/favor-skills.git ~/Git/favor-skills
-   ```
-2. **For Global installation (Gemini CLI / Antigravity):**
-   ```bash
-   mkdir -p ~/.gemini/skills
-   cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees ~/.gemini/skills/
-   ```
-3. **For Global installation (Claude Code):**
-   ```bash
-   mkdir -p ~/.claude/skills
-   cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees ~/.claude/skills/
-   ```
-4. **For Workspace installation (inside a specific project):**
-   ```bash
-   mkdir -p .agents/skills
-   cp -r ~/Git/favor-skills/speak-like-favor ~/Git/favor-skills/attendees .agents/skills/
-   ```
+> Recipes only run the steps your connected tools allow. If a skill needs a capability you haven't connected yet (see the [Requirements column](#install-individual-skills)), it explains what's missing and how to connect it before doing anything risky.
+
+### Single-skill recipes
+
+| # | Recipe | What it does |
+|---|---|---|
+| 1 | `/attendees favor conference 2026` | Counts registered attendees for Favor Conference 2026 — checks Favor Event Tickets first, falls back to Fluro. |
+| 2 | `/attendees worship night` *("how many RSVP'd for worship night?")* | Looks up an internal / non-ticketed event's RSVP or check-in count via Fluro. |
+| 3 | `/triage-conference` *("check the conference inbox")* | Fetches unread mail at conferences@favor.church, matches each to the knowledge base, and drafts Favor-voice replies. |
+| 4 | `/ticket-transfer` *("process the ticket transfers")* | Pulls new and pending transfer requests, matches attendee records, then (after your go-signal) updates tickets and drafts confirmation emails. |
+| 5 | `/financial-assistance check FC26` *("review the new financial aid requests")* | Dry run: reads new requests, computes exact discounts from live ticket prices, and reports — no writes. |
+| 6 | `/financial-assistance process new requests` | Full pipeline: updates the tracker, assigns exact-tier coupon codes, and drafts emails. Sends only after you approve. |
+| 7 | `/export-attendees worship conference 2026` *("sync the attendee list to the sheet")* | Exports the full attendee CSV into the Google Sheets masterlist and stamps the "Last Updated" cell. |
+| 8 | *"export the attendees again"* / *"re-export"* | Re-runs the last export against the same sheet and event. |
+| 9 | `/update-unique-churches` *("recount the unique churches")* | Folds new MASTERLIST signups into the normalized church-count tab and recomputes — additions and cancellations both register. |
+| 10 | *"how many unique churches do we have now?"* | Runs the recount's analyze step and reports the current unique count plus the net change. |
+| 11 | `/resend-conference-emails-carefully-with-smtp bump the QR tickets for FC26` | Validates every recipient against active tickets, warms up ~25, then bulk-bumps ticket emails via SMTP relay. Resumable and safe. |
+| 12 | *"draft a reminder email for Favor Conference in our voice"* | `speak-like-favor` writes a warm, on-brand email with correct dates, links, and closing. |
+| 13 | *"QA this announcement"* (paste your copy) | `speak-like-favor` checks for em dashes, date and time format, link styling, capitalization, and currency. |
+
+### Combo recipes (chaining skills)
+
+| # | Recipe | What it does |
+|---|---|---|
+| 14 | *"Count Favor Conference 2026 attendees, then sync the full list to the masterlist."* | `attendees` for the headcount, then `export-attendees` to push every row into Sheets. |
+| 15 | *"Triage the conference inbox, then bump everyone who never got their QR ticket before the event."* | `triage-conference` surfaces delivery issues, then `resend-conference-emails-carefully-with-smtp` resurfaces tickets safely. |
+| 16 | *"Process the new financial aid requests and make sure the coupon emails sound like Favor."* | `financial-assistance` computes discounts and drafts, with `speak-like-favor` voice applied to every draft. |
+| 17 | *"Run the ticket transfers, then re-check the Favor Conference headcount."* | `ticket-transfer` updates attendee records, then `attendees` confirms the count. |
+| 18 | *"Sync the attendee masterlist, then recount the unique churches."* | `export-attendees` refreshes MASTERLIST, then `update-unique-churches` folds the new signups into the church count. |
+
+---
+
+## 🛠️ Manual Installation (Terminal Users)
+
+**With git (recommended):**
+
+```bash
+git clone https://github.com/favorchurch/favor-skills.git /tmp/favor-skills
+
+# Claude Code — core + all conference skills
+mkdir -p ~/.claude/skills
+cp -r /tmp/favor-skills/speak-like-favor ~/.claude/skills/
+cp -r /tmp/favor-skills/CONFERENCE-2026/. ~/.claude/skills/
+
+# Gemini CLI — core + all conference skills
+mkdir -p ~/.gemini/skills
+cp -r /tmp/favor-skills/speak-like-favor ~/.gemini/skills/
+cp -r /tmp/favor-skills/CONFERENCE-2026/. ~/.gemini/skills/
+
+# Workspace (Cursor / Windsurf / any project)
+mkdir -p .agents/skills
+cp -r /tmp/favor-skills/speak-like-favor .agents/skills/
+cp -r /tmp/favor-skills/CONFERENCE-2026/. .agents/skills/
+```
+
+**Without git (curl + unzip):**
+
+```bash
+curl -L https://github.com/favorchurch/favor-skills/archive/refs/heads/main.zip \
+     -o /tmp/favor-skills.zip
+unzip -q -o /tmp/favor-skills.zip -d /tmp/favor-skills-extract
+
+# Claude Code — core + all conference skills
+mkdir -p ~/.claude/skills
+cp -r /tmp/favor-skills-extract/favor-skills-main/speak-like-favor ~/.claude/skills/
+cp -r /tmp/favor-skills-extract/favor-skills-main/CONFERENCE-2026/. ~/.claude/skills/
+```
+
 
 ---
 
 ## 📂 Repository Layout
 
+Every skill folder has a `SKILL.md` (the source of truth the AI follows) and a `README.md` (a human-friendly usage guide with recipes).
+
 ```text
 favor-skills/
 ├── README.md                       # This file
 ├── speak-like-favor/
-│   ├── SKILL.md                    # Voice & Tone Guidelines
+│   ├── SKILL.md                    # Voice & tone guidelines
+│   ├── README.md                   # Usage guide + recipes
 │   ├── references/
 │   │   └── qa-guidelines.md        # Extended QA standards
 │   └── agents/
 │       └── openai.yaml             # ChatGPT/Codex integration rules
-└── attendees/
-    └── SKILL.md                    # Attendee count workflow logic
+└── CONFERENCE-2026/                # Conference-specific operation skills
+    ├── attendees/
+    │   ├── SKILL.md                # Attendee count workflow logic
+    │   ├── README.md               # Usage guide + recipes
+    │   └── agents/
+    │       └── openai.yaml         # ChatGPT/Codex integration rules
+    ├── ticket-transfer/
+    │   ├── SKILL.md                # Transfer tickets between attendees
+    │   └── README.md
+    ├── triage-conference/
+    │   ├── SKILL.md                # Conference attendee triage workflow
+    │   ├── README.md
+    │   └── references/
+    │       └── conference-kb.md    # Conference knowledge base
+    ├── financial-assistance/
+    │   ├── SKILL.md                # Financial assistance application handling
+    │   └── README.md
+    ├── export-attendees/
+    │   ├── SKILL.md                # Export attendee lists to Sheets
+    │   └── README.md
+    ├── resend-conference-emails-carefully-with-smtp/
+    │   ├── SKILL.md                # Safe bulk email re-send workflow
+    │   ├── README.md
+    │   └── scripts/                # Python SMTP helper scripts
+    └── update-unique-churches/
+        ├── SKILL.md                # Update unique church count tracker
+        ├── README.md
+        └── church_recount.py       # Church recount utility script
 ```
 
 ---
 
 ## ⚙️ Configuration & Credentials
 
-The repository itself does not store any credentials. However, some skills require specific credentials to run:
+This repo stores **no credentials**. Skills only need connections when you *run* them, not when you install them. Each requirement is a **capability bucket** — a thing the skill needs to do (like "draft an email") — and any one of several interchangeable tools can satisfy it. Connect whichever tool you already use.
 
-- **`speak-like-favor`**: No external connections needed.
-- **`attendees`**: Requires access to the **Favor Event Tickets** and **Fluro** MCP servers.
-  - The AI will prompt you to run `mcp oauth login favor-event-tickets` or `mcp oauth login fluro-mcp` if authentication is missing or expired.
+### Capability buckets
+
+| Capability bucket | What it's for | Satisfied by any one of |
+|---|---|---|
+| **Gmail Draft Access** | Read a Favor mailbox and create/send drafts (with the right sender, e.g. `conferences@favor.church`) | Gmail MCP · Composio Gmail (`GMAIL_*`) · `gws` CLI · any send-as-capable Gmail CLI/MCP |
+| **Gmail Read Access** | Read/enumerate a mailbox (no sending) | Composio Gmail · `gws` CLI (with read scope) · Gmail MCP |
+| **Event Tickets Access** | Read/update attendees, orders, tickets, and events (WordPress/WooCommerce) | Favor Event Tickets MCP *(for ticket prices only, the public event page is a manual fallback)* |
+| **Fluro Access** | Read kanban boards, form submissions, and contacts; write tags and card moves | Fluro for Favor Church MCP |
+| **Google Sheets Access** | Read and write spreadsheet values | Composio (`GOOGLESHEETS_*`) · `gws` CLI · Google Sheets MCP |
+| **Workspace SMTP Relay** | Send high volumes of email past Gmail's daily API cap | Google Workspace SMTP relay (`smtp-relay.gmail.com:587`) + an app password |
+| **Shell & Python** | Run helper scripts and download CSVs | A terminal with `bash`, `curl`, and Python 3 |
+
+### Which skill needs what
+
+| Skill | Required | Optional |
+|---|---|---|
+| `speak-like-favor` | — (none) | — |
+| `attendees` | Event Tickets Access | Fluro Access (fallback) |
+| `ticket-transfer` | Fluro Access · Event Tickets Access · Gmail Draft Access (for emails) | — |
+| `triage-conference` | Gmail Draft Access · Event Tickets Access (for actions) | Fluro Access |
+| `financial-assistance` | Fluro Access · Google Sheets Access · Gmail Draft Access | Event Tickets Access (has event-page fallback) |
+| `export-attendees` | Event Tickets Access · Google Sheets Access · Shell & Python | — |
+| `resend-conference-emails-carefully-with-smtp` | Event Tickets Access · Gmail Read Access · Workspace SMTP Relay · Shell & Python | — |
+| `update-unique-churches` | Google Sheets Access · Shell & Python | Web search |
+
+If a **Required** capability has no connected tool when you run a skill, the skill explains what's missing and how to connect one of the options, then pauses (it never fakes results). **Optional** capabilities just produce a heads-up and the skill keeps going. For MCP servers, the AI will typically prompt you to run something like `mcp oauth login favor-event-tickets` or `mcp oauth login fluro-mcp`.
 
 ---
 
@@ -307,5 +450,5 @@ The repository itself does not store any credentials. However, some skills requi
 
 1. Create a branch from `main` (e.g. `feature/update-rules`).
 2. Make your edits to the relevant `SKILL.md` (these are the single sources of truth).
-3. If you change a skill's behavior, remember to also update the copy-paste prompt in this `README.md`.
+3. If you change a skill's behavior, also update its folder `README.md`, the copy-paste prompt, and the Requirements/recipes in this `README.md`.
 4. Submit a Pull Request.
