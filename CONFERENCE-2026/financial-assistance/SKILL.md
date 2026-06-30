@@ -11,6 +11,18 @@ Process Favor Church conference financial assistance requests end to end: read t
 
 Core rule: never guess the applicant, event, ticket price, sender, coupon tier, or sent status. Verify each live system before writing.
 
+## Prerequisites
+
+Each requirement below is a **capability bucket** — any one of the listed tools satisfies it. Run this preflight before any phase. If a **Required** bucket has no connected tool, explain what it is, why this skill needs it, and how to connect one of the options, then **stop and ask the user to set it up** before continuing — never guess a price, coupon, or sender to work around a missing tool.
+
+| Capability | Type | Satisfied by (any one) | If missing |
+|---|---|---|---|
+| **Fluro Access** (`kanban`, `item`, `update`) | Required | Fluro for Favor Church MCP | The requests live on the `mnlFinancialAssistanceRequests` board; without it there is nothing to intake or close. Ask the user to connect Fluro, then wait. |
+| **Google Sheets Access** | Required | Composio (`GOOGLESHEETS_*`) · `gws` CLI · Google Sheets MCP | The tracker (`REQUESTS`) and coupon tabs live in Sheets. Ask the user to connect a Sheets-capable tool, then wait. |
+| **Gmail Draft Access** (send-as `conferences@favor.church`) | Required for Phases 5 & 7 | Gmail MCP/CLI with send-as · Composio Gmail with verified send-as · `gws` CLI | Drafts/sends must come from the correct sender. If no connected tool can enforce the `From` address, **do not create wrong-sender drafts** — give the user install/auth instructions plus ready-to-send text instead (see Sender Enforcement). |
+| **Event Tickets Access** | Required for live prices (has fallback) | Favor Event Tickets MCP · *fallback:* the official event page (e.g. `favor.church/conference`) | Used to read live ticket prices for the discount math. If missing, fall back to the official event page and tell the user; only use user-provided prices if they explicitly confirm. |
+| `speak-like-favor` skill | Recommended | the `speak-like-favor` skill | Keeps coupon emails in Favor voice + the standout coupon block. If absent, apply the HTML rules inlined in Phase 5. |
+
 ## Fixed Systems
 
 | System | Value |

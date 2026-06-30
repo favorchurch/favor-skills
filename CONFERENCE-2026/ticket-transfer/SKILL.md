@@ -7,10 +7,16 @@ description: "End-to-end workflow for processing MNL ticket transfer requests fr
 
 Full pipeline for processing MNL ticket transfer requests.
 
-## Required Tools
-- **Fluro for Favor Church** — `kanban`, `events`, `item`
-- **Favor Event Tickets** — `attendees`
-- **Gmail** — `gmail_create_draft`
+## Prerequisites
+
+Each requirement below is a **capability bucket** — any one of the listed tools satisfies it. Run this preflight before processing transfers. If a **Required** bucket has no connected tool, explain what it is, why this skill needs it, and how to connect one of the options, then **stop and ask the user to set it up** before continuing — never perform a partial transfer or fake a draft.
+
+| Capability | Type | Satisfied by (any one) | If missing |
+|---|---|---|---|
+| **Fluro Access** (`kanban`, `events`, `item`) | Required | Fluro for Favor Church MCP | The transfer requests live on the `mnlTicketTransfers` kanban; without it there is nothing to process. Ask the user to connect/authenticate Fluro, then wait. |
+| **Event Tickets Access** (`attendees`) | Required | Favor Event Tickets MCP | Needed to look up the transferer/transferee records and perform the actual attendee update. Ask the user to connect it (e.g. `mcp oauth login favor-event-tickets`), then wait. |
+| **Gmail Draft Access** (send-as `conferences@favor.church`) | Required for Step 7 | Gmail MCP (`create_draft`) · Composio Gmail (`GMAIL_CREATE_EMAIL_DRAFT`) · `gws` CLI · any send-as-capable Gmail CLI/MCP | Needed to draft completion/inquiry emails. You may still complete Steps 1–6 without it — if no tool is connected, do the transfers, then tell the user the email-draft step is blocked and hand them ready-to-paste subject/body text instead. |
+| `speak-like-favor` skill | Recommended | the `speak-like-favor` skill | Keeps email drafts in Favor voice. If absent, still apply the HTML/voice rules inlined in Step 7. |
 
 ---
 

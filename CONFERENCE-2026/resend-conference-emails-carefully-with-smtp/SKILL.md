@@ -10,6 +10,20 @@ Bulk-resurface attendees' existing ticket emails by sending **personalized, thre
 
 **Core principle:** a bulk send to real attendees is hard to reverse — validate, dedupe, warm up, and make it resumable *before* you ever send the full batch.
 
+## Prerequisites (preflight)
+
+This skill **sends real email to real attendees** — treat every missing prerequisite as a hard stop. Each requirement is a **capability bucket** (any one of the listed tools satisfies it). If a **Required** bucket has no connected tool, explain what it is, why it's needed, and how to set up one of the options, then **stop and ask the user** before doing anything. Never start a bulk send with an unverified recipient list or an unconfigured relay.
+
+| Capability | Type | Satisfied by (any one) | If missing |
+|---|---|---|---|
+| **Event Tickets Access** (`attendees` count/csv/query) | Required | Favor Event Tickets MCP | The source of truth for who currently holds a valid ticket. Without it you cannot validate recipients — stop and ask to connect it. |
+| **Gmail Read Access** (on the shared mailbox, e.g. `conferences`) | Required | Composio CLI Gmail connection (aliased to the mailbox) · `gws` CLI with read scope · Gmail MCP | Needed to enumerate sent ticket emails and detect bounces. Stop and ask the user to connect/alias one. |
+| **Workspace SMTP Relay** (`smtp-relay.gmail.com:587` + app password) | Required to send | Google Workspace SMTP relay service with an app password in `BUMP_SMTP_USER`/`BUMP_SMTP_PASS` | Admin must enable Apps → Gmail → Routing → SMTP relay service (require auth + TLS) and issue an app password (e.g. a gitignored `.bump_env`). If unset, you may run all validation/dry-run steps but **must not** send — stop and ask. |
+| **Shell & Python** (Python 3 + the bundled `scripts/`) | Required | a terminal with Python 3 | The validation, dedupe, verify, and resumable sender all run as Python scripts. |
+| Explicit human go-ahead for the full send | Required gate | the user | Warm up ~25 first; only proceed to the full batch after the user confirms threading + inbox placement. |
+
+The detailed connector notes are in **Connectors / prerequisites** below.
+
 ## When to use
 - "Bump / resend the QR tickets", "remind attendees", "resurface tickets before the event"
 - A mail-delivery problem means many people need their ticket re-sent

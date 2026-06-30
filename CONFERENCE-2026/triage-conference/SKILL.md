@@ -14,6 +14,20 @@ Triage unread emails at conferences@favor.church, draft contextual replies that 
 
 ---
 
+## Prerequisites
+
+Each requirement below is a **capability bucket** — any one of the listed tools satisfies it. Run this preflight before triaging. If a **Required** bucket has no connected tool, explain what it is, why this skill needs it, and how to connect one of the options, then **stop and ask the user to set it up** before continuing — never invent inbox contents or event facts.
+
+| Capability | Type | Satisfied by (any one) | If missing |
+|---|---|---|---|
+| **Gmail Draft Access** (on the `conferences@favor.church` mailbox) | Required | Gmail MCP (`search_threads`, `get_thread`, `create_draft`) · Composio Gmail (`GMAIL_*`) · `gws` CLI (if its OAuth has read scope) | Phases 1 (fetch unread) and 3 (draft replies) cannot run without it. Ask the user to connect the conferences Gmail, then wait. |
+| **Conference KB** (`references/conference-kb.md`, bundled) | Required | the file shipped alongside this skill | Source of truth for event facts and FAQ answers. If not present, stop and ask — do not answer from memory. |
+| **Event Tickets Access** (`attendees`, `orders`, `events`) | Required for Phase 4 actions | Favor Event Tickets MCP | Needed to resend tickets, check registrations, and fix wrong emails. If missing, you can still summarize and draft (Phases 1–3); warn that no ticket actions can be taken and ask to connect it for those. |
+| **Fluro Access** (`item`, `update`) | Optional (conditional) | Fluro for Favor Church MCP | Only needed when an email requires tagging a contact (e.g. Favor DNA proof). If missing, draft the reply and note the tagging step is pending a Fluro connection. |
+| `speak-like-favor` skill | Recommended | the `speak-like-favor` skill | Keeps every draft in Favor voice. If absent, apply the voice/HTML rules inlined in Phase 3. |
+
+---
+
 ## Overview
 
 This skill runs a 4-phase pipeline:

@@ -24,6 +24,16 @@ DOWN) and additions both register.
 > A sibling skill `unique-churches` exists but is **stale** (uses the `gws` CLI, the pre-drift
 > column letters, and the old "add parentheses for campuses" convention). Prefer THIS skill.
 
+## Prerequisites
+
+Each requirement below is a **capability bucket** — any one of the listed tools satisfies it. Run this preflight before reading or writing the Sheet. If a **Required** bucket has no connected tool, explain what it is, why this skill needs it, and how to connect one of the options, then **stop and ask the user to set it up** before continuing — never write a recount you couldn't verify.
+
+| Capability | Type | Satisfied by (any one) | If missing |
+|---|---|---|---|
+| **Google Sheets Access** (as `rico@favor.church`) | Required | Composio CLI with the `googlesheets` toolkit (this skill's commands assume Composio `GOOGLESHEETS_*`) | All reads/writes go through `GOOGLESHEETS_*`. Confirm with `composio whoami`; if not connected, ask the user to authenticate the googlesheets toolkit, then wait. |
+| **Shell & Python** (Python 3 + the bundled `church_recount.py`) | Required | a terminal with Python 3 | The deterministic extraction, matching, recount, and payload assembly run in the script. Without it, do not hand-recount. |
+| **Web search / fetch** | Optional | any web search or fetch tool | Used to verify ambiguous or higher-count new churches. If unavailable, mark them `Unverified` and note which rows still need verification. |
+
 ## Fixed facts
 
 - **Sheet ID:** `1PT2e_9nk9gmlPKcGQloXmTLgZZt88MLzyt0kL249oFE`

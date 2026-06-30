@@ -7,6 +7,10 @@ description: favor church manila communication style and qa guidance for draftin
 
 Use this skill to draft, edit, or QA Favor Church Manila communication so it feels warm, clear, authentic, and easy for people to act on.
 
+## Prerequisites
+
+**None.** This skill is pure writing and QA guidance, so it works in any AI assistant with no external connections, MCP servers, or CLI tools. If a task asks you to *send* or *publish* the copy (e.g. email a draft), that delivery step belongs to another skill or tool, not this one.
+
 ## Core Voice
 
 Write like a friendly peer and helpful thought partner. Keep copy warm, human, and concise.

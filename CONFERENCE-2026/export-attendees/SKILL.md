@@ -14,6 +14,18 @@ Exports the full attendee CSV from Favor Event Tickets and pastes it (values onl
 
 ---
 
+## Prerequisites
+
+Each requirement below is a **capability bucket** — any one of the listed tools satisfies it. Run this preflight before exporting. If a **Required** bucket has no connected tool, explain what it is, why this skill needs it, and how to connect one of the options, then **stop and ask the user to set it up** before continuing — never paste partial or fabricated rows.
+
+| Capability | Type | Satisfied by (any one) | If missing |
+|---|---|---|---|
+| **Event Tickets Access** (`attendees` with `action: "csv"`) | Required | Favor Event Tickets MCP | Source of the attendee CSV. Ask the user to connect it (e.g. `mcp oauth login favor-event-tickets`), then wait. |
+| **Google Sheets Access** (+ Composio Remote Workbench for the paste) | Required | Composio `GOOGLESHEETS_*` (this skill's flow assumes the Composio workbench) | Needed to locate the masterlist and paste values in chunks. Ask the user to connect the `googlesheets` toolkit in Composio, then wait. |
+| **Shell & Python** (bash + `curl` with a browser User-Agent) | Required | a terminal with `bash`, `curl`, and Python 3 | The signed CSV URL returns HTTP 403 to default User-Agents and expires in ~15 min. Without a shell, the CSV can't be downloaded. |
+
+---
+
 ## Workflow
 
 ### Step 1 — Get the CSV download URL
