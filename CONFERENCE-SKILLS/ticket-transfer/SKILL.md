@@ -1,0 +1,255 @@
+---
+name: ticket-transfer
+description: "End-to-end workflow for processing MNL ticket transfer requests from the Fluro kanban. Use this skill whenever Rico asks to check ticket transfers, process transfer requests, triage the ticket transfer kanban, or says /ticket-transfer. Covers fetching new/pending cards from the mnlTicketTransfers Fluro kanban, pulling full submission details (transferer, requester, transferee, proof of payment), looking up existing attendee records in Favor Event Tickets, awaiting confirmation, performing the actual attendee update, moving kanban cards, and drafting completion/inquiry emails from conferences@favor.church via Gmail."
+---
+
+# Ticket Transfer Workflow
+
+Full pipeline for processing MNL ticket transfer requests.
+
+## Required Tools
+- **Fluro for Favor Church** — `kanban`, `events`, `item`
+- **Favor Event Tickets** — `attendees`
+- **Gmail** — `gmail_create_draft`
+
+---
+
+## Step 1 — Fetch New & Pending Kanban Cards
+
+Call the Fluro kanban tool:
+
+```
+Fluro for Favor Church:kanban
+  action: "boards"
+  search: "mnlTicketTransfers"
+```
+
+This returns the board definition including all cards. Filter cards where `stateKey` is **`newRequests`** or **`pending`** only. Ignore `completed` and `noTransfer`.
+
+If no cards match, report: "No new or pending ticket transfer requests."
+
+---
+
+## Step 2 — Pull Submission Details
+
+The kanban process card holds state/history only. The actual form data is in the linked `interaction` record (`mnlTicketTransferRequest`).
+
+Fetch submissions via:
+
+```
+Fluro for Favor Church:events
+  action: "formSubmissions"
+  definition: "mnlTicketTransferRequest"
+  limit: 100
+```
+
+Or query directly with a date filter:
+
+```
+Fluro for Favor Church:item
+  batch: [{ action: "query", body: { "definition": "mnlTicketTransferRequest", "created": { "$gte": "<earliest card created date>" } }, simple: false }]
+```
+
+Match each submission to its kanban card via the `item._id` field on the process card == `_id` on the submission.
+
+### For each request, extract and display:
+
+| Field | Source path |
+|---|---|
+| Event | `data.event` |
+| Transferer name | `data.transferer.fullName` |
+| Transferer email | `data.transferer.email` |
+| Ticket type | `data.transferer.ticketType[Event]` |
+| Requester | `data.requester.fullName` + `data.requester.email` (if different from transferer) |
+| Requester relationship | `data.requester.relationship` |
+| Transferee name | `data.transferee.[eventKey].firstName` + `lastName` |
+| Transferee email | `data.transferee.[eventKey].email` |
+| Transferee phone | `data.transferee.[eventKey].phoneNumber` |
+| Transferee ticket type | `data.transferee.[eventKey].ticketType` |
+| Proof of payment | `https://api.fluro.io/get/{data.requester.originalTicketUpload}` |
+
+> ⚠️ Proof of payment links require the user to be logged into Fluro in their browser to view.
+
+Present each request clearly, grouped by card state (New Requests first, then Pending).
+
+---
+
+## Step 3 — Look Up Tickets in Favor Event Tickets
+
+For each request, search the relevant event using **email** for the transferer (more reliable than name), and **full name** for the transferee.
+
+```
+Favor Event Tickets:attendees
+  action: "query"
+  event_query: "<event name>"
+  search: "<transferer email>"
+  columns: ["id", "title", "email", "ticket_type", "status"]
+
+Favor Event Tickets:attendees
+  action: "query"
+  event_query: "<event name>"
+  search: "<transferee full name>"
+  columns: ["id", "title", "email", "ticket_type", "status"]
+```
+
+### Interpret results:
+
+| Scenario | Meaning | Action |
+|---|---|---|
+| Transferer found, transferee not found | Normal — ready to transfer | Proceed |
+| Transferer found, transferee already exists | Transferee has a ticket | ⚠️ Flag — do not transfer, see Edge Cases |
+| Transferer not found by email | May have been renamed by prior transfer | Search by name as fallback |
+| Neither found | Unusual — flag for manual review | |
+
+Present a **summary table** covering all requests:
+
+| # | Event | Transferer | Transferer Record | Transferee | Transferee Pre-exists? | Action |
+|---|---|---|---|---|---|---|
+| 1 | ... | ... | ✅ #ID / ❌ Not found | ... | ✅ Already registered / ❌ None | Transfer / ⚠️ Investigate |
+
+---
+
+## Step 4 — Await Go-Signal
+
+**Do not perform any writes until Rico explicitly confirms.**
+
+Present the action plan clearly:
+- Which attendee IDs will be updated
+- From name/email → to name/email
+- Which cards will move to which state
+
+Wait for "go", "proceed", "yes do it", or equivalent.
+
+---
+
+## Step 5 — Perform Ticket Transfers
+
+For each approved transfer, call:
+
+```
+Favor Event Tickets:attendees
+  action: "update"
+  attendee_id: <id>
+  full_name: "<transferee full name>"
+  email: "<transferee email>"
+  information: {
+    "first-name": "...",
+    "last-name": "...",
+    "gender": "...",
+    "birthdate": "YYYY-MM-DD",
+    "age": <int>,
+    "mobile-number": "...",
+    "which-country-are-you-from": "...",
+    "whats-your-church-involvement": "...",
+    "do-you-want-to-be-connected-to-our-new-people-team-to-meet-new-friends-during-the-conference": "...",
+    "do-you-need-special-assistance-during-the-conference": "..."
+    // Student tickets also include: "what-is-your-school-university"
+  }
+```
+
+**Verify success**: Check that `attendee_after.title` matches the transferee's name. If `attendee_before` == `attendee_after`, the update may not have applied — verify via:
+
+```
+Favor Event Tickets:attendees
+  action: "get"
+  attendee_id: <id>
+  include_ticket_fields: true
+```
+
+---
+
+## Step 6 — Move Kanban Cards
+
+After confirmed successful transfers:
+
+```
+Fluro for Favor Church:kanban
+  action: "move"
+  cardIds: ["<process card _id>", ...]
+  toStateKey: "completed"
+```
+
+For blocked/pending cases (e.g. transferee already has a ticket):
+```
+Fluro for Favor Church:kanban
+  action: "move"
+  cardIds: ["<process card _id>"]
+  toStateKey: "pending"
+```
+
+Use the process card `_id` (from the kanban board data), **not** the submission item `_id`.
+
+---
+
+## Step 7 — Draft Emails via Gmail
+
+All emails are from **conferences@favor.church** (Gmail **user 4**).
+
+**Formatting (apply `speak-like-favor` Email Rendering):** draft every email as **HTML** (`is_html: true`), never plain text with markdown. Use `<strong>`/`<ul><li>`/`<p>` (no `**` or `-` bullets), and make any link clickable with `<a href="https://full-url">visible text</a>` (clean lowercase visible text, full URL in the href).
+
+**Tooling note:** Composio `GMAIL_CREATE_EMAIL_DRAFT` works for drafting (`recipient_email`, `extra_recipients`/`cc`, `subject`, `body`, `is_html`). `GMAIL_UPDATE_DRAFT` often fails on thread-reply drafts ("Message not a draft") and `GMAIL_LIST_DRAFTS` under-reports due to indexing lag — verify with `GMAIL_GET_DRAFT` by id, and to fix a draft, delete and recreate it.
+
+Draft link format: `https://mail.google.com/mail/u/4/#drafts?compose={messageId}`
+
+### ✅ Transfer Complete Email
+
+**To**: requester email (or transferer if they submitted themselves)
+**CC**: transferee email, and transferer email if a third party submitted
+**Subject**: `[Event] | Ticket Transfer Complete — [Transferer Name] → [Transferee Full Name]`
+
+Body should confirm:
+- Transfer has been completed
+- Transferee's name and email now on the ticket
+- Note that the transferee should receive ticket confirmation shortly
+
+Sign off:
+```
+Much love,
+[Event] Team
+```
+
+### ⚠️ Inquiry Email (Transferee already has a ticket)
+
+**To**: requester email
+**Subject**: `[Event] | Ticket Transfer Request — [Transferer Name]`
+
+Body should:
+- Thank them for submitting
+- Explain that the intended transferee already appears to be registered
+- Offer two options:
+  1. Continue the transfer anyway (reply to confirm)
+  2. Transfer to a different person (submit new form at **favor.church/tickettransfer**)
+
+Sign off:
+```
+Much love,
+[Event] Team
+```
+
+After creating all drafts, present the links to Rico for review before sending.
+
+---
+
+## Edge Cases
+
+### Transferee already has a ticket
+- Do **not** perform the attendee update
+- Move card to `pending`
+- Draft an inquiry email to the requester (see Step 7)
+- Flag clearly in the summary
+
+### Third-party requester (Jared-type scenario)
+- Note when `requester.areyoutheoriginalticketholder == "No"` and a different person submitted
+- The same requester submitting multiple transfers in one batch is normal — handle each independently
+
+### Transferer not found in Event Tickets
+- Try searching by name as fallback
+- If still not found, note that the ticket may have already been transferred previously or registered under a different email
+- Flag for manual review, do not proceed with that request
+
+### kanban move returns 404
+- This is an intermittent API issue — retry once before giving up
+- The tool uses the process card `_id` (not the interaction item `_id`)
+
+### Gmail delete draft
+- The Gmail MCP does not support draft deletion — instruct Rico to delete manually via the draft link
