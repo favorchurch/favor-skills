@@ -12,9 +12,9 @@ Paste a prompt directly into your AI's chat. The prompts below work in three tie
 
 ---
 
-### 🖥️ Terminal AI (Claude Code, Gemini CLI, Cursor, Windsurf)
+### Prompts to Install Favor Skills
 
-These prompts try `git` first for speed, fall back to `curl` + zip if git is unavailable, and work in cloud instances.
+Paste into any terminal-capable AI (Claude Code, Gemini CLI, Cursor, Windsurf, or a cloud instance).
 
 #### Install Core Skill (`speak-like-favor`)
 
@@ -47,20 +47,20 @@ List remaining skill folders after deletion to confirm.
 
 ---
 
-### 💬 Web AI (Claude.ai, ChatGPT, Gemini Web)
+### Install Individual Skills
 
-Web AIs cannot install files. Instead, paste a ready-made prompt directly into chat — the AI will fetch the skill and activate it for that conversation. These prompts also work in **Claude.ai Projects** and **ChatGPT with browsing** as persistent instructions.
+Paste directly into any AI — web or terminal. Works in Claude.ai Projects and ChatGPT with browsing as persistent instructions.
 
-| Skill | Prompt to paste |
-|---|---|
-| speak-like-favor | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/speak-like-favor/SKILL.md and follow it as your active writing and voice guidelines for this conversation.` |
-| attendees | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/attendees/SKILL.md and follow it as your active skill instructions for looking up event attendee counts.` |
-| ticket-transfer | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/ticket-transfer/SKILL.md and follow it as your active skill instructions for handling ticket transfers.` |
-| triage-conference | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/triage-conference/SKILL.md and follow it as your active skill instructions for conference attendee triage.` |
-| financial-assistance | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/financial-assistance/SKILL.md and follow it as your active skill instructions for handling financial assistance applications.` |
-| export-attendees | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/export-attendees/SKILL.md and follow it as your active skill instructions for exporting attendee lists.` |
-| resend-conference-emails-carefully-with-smtp | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/resend-conference-emails-carefully-with-smtp/SKILL.md and follow it as your active skill instructions for safely resending conference emails via SMTP.` |
-| update-unique-churches | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/update-unique-churches/SKILL.md and follow it as your active skill instructions for updating the unique churches count.` |
+| Skill | Description | Prompt to paste |
+|---|---|---|
+| `speak-like-favor` | Favor Church Manila voice and tone — drafting, editing, and QA-ing emails, announcements, invitations, and church copy | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/speak-like-favor/SKILL.md and follow it as your active writing and voice guidelines for this conversation.` |
+| `attendees` | Look up registered or checked-in attendee counts for any event via Favor Event Tickets or Fluro | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/attendees/SKILL.md and follow it as your active skill instructions for looking up event attendee counts.` |
+| `ticket-transfer` | End-to-end workflow for processing ticket transfer requests from the Fluro kanban, including attendee updates and confirmation emails | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/ticket-transfer/SKILL.md and follow it as your active skill instructions for handling ticket transfers.` |
+| `triage-conference` | Triage the conferences@favor.church inbox, draft smart replies, and surface Favor Event Tickets action items | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/triage-conference/SKILL.md and follow it as your active skill instructions for conference attendee triage.` |
+| `financial-assistance` | Process financial assistance applications — coupon assignment, request tracking, Gmail drafts, and Fluro kanban updates | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/financial-assistance/SKILL.md and follow it as your active skill instructions for handling financial assistance applications.` |
+| `export-attendees` | Sync and export attendee data from Favor Event Tickets into a Google Sheets masterlist | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/export-attendees/SKILL.md and follow it as your active skill instructions for exporting attendee lists.` |
+| `resend-conference-emails-carefully-with-smtp` | Safely re-send or bulk-bump QR ticket emails to many attendees via SMTP relay without hitting Gmail's daily cap | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/resend-conference-emails-carefully-with-smtp/SKILL.md and follow it as your active skill instructions for safely resending conference emails via SMTP.` |
+| `update-unique-churches` | Recount and update the unique churches represented in the conference attendance Google Sheet | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-SKILLS/update-unique-churches/SKILL.md and follow it as your active skill instructions for updating the unique churches count.` |
 
 ---
 
