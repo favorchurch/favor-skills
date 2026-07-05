@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Bash(head:*)",
+      "Bash(wc:*)",
+      "Bash(date:*)",
+      "Bash(TZ=*)",
+      "mcp__claude_ai_Favor_Event_Tickets__attendees",
+      "mcp__claude_ai_Favor_Event_Tickets__events",
+      "mcp__claude_ai_Composio__COMPOSIO_MULTI_EXECUTE_TOOL",
+      "mcp__claude_ai_Composio__COMPOSIO_REMOTE_WORKBENCH",
+      "mcp__claude_ai_Composio__COMPOSIO_SEARCH_TOOLS",
+      "mcp__claude_ai_Composio__COMPOSIO_GET_TOOL_SCHEMAS"
+    ],
+    "defaultMode": "default"
+  }
+}

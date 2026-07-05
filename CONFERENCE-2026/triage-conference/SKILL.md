@@ -63,13 +63,15 @@ to:conferences@favor.church is:unread
 
 ## Phase 2: Classify & Answer from the Knowledge Base
 
+Before drafting replies, search Gmail for recent successfully sent non-system emails (e.g., `from:me -subject:invoice -subject:booking -subject:"your qr"`) from the last 2–3 days. Reflect on these sent messages to identify the most up-to-date policies, templates, approval patterns, and links used by the team, and let them guide your responses to ensure they match recent actions.
+
 Read `references/conference-kb.md` and match each email to a scenario in §3 of that file. Common recurring scenarios:
 
 - Didn't receive ticket / QR → resend + "check inbox and spam".
 - "Is my order confirmation my ticket?" → clarify order confirmation vs separate QR tickets.
 - Wrong/bounced email → correct in Favor Event Tickets, resend.
-- Ticket transfer request → point to `favor.church/tickettransfer`; transferable **until June 26**.
-- Financial assistance → `favor.church/financialaid`, deadline **June 26**; multi-ticket requests need Ps Dawn & Kim approval.
+- Ticket transfer request → apply the **Phase 2.5 auto-approval policy**. Auto-approve (proceed / ask for transferee details) for unforeseen circumstances or another-church-with-multiple-tickets; execute if info is complete and a prior thread approved it; otherwise summarize and ask Rico via `AskUserQuestion`. The window closed June 26, but never dismiss the sender, and never state the reason when approving.
+- Financial assistance → `favor.church/financialaid`. New requests: point to the form; multi-ticket requests need Ps Dawn & Kim approval. **Follow-ups are auto-approved: run `/financial-assistance` to issue the coupon directly (email-approved exception), then send the code in-thread** (see Phase 2.5). Do not defer to Finance.
 - Serving / Open Access volunteer → `favor.church/serveatconference`.
 - Sponsorship → `sponsorships@favor.church`.
 - Kids questions (helper/yaya, check-in, pickup times) → see KB §5.
@@ -79,6 +81,30 @@ Read `references/conference-kb.md` and match each email to a scenario in §3 of 
 - **Favor DNA proof/screenshot → reply AND tag the Fluro contact (see Phase 4).**
 
 > **Deadline note:** the Conference FAQs doc still says transfers close "June 2" — that is stale. The operative deadline is **June 26** (live ticket emails + Rico's replies). Use June 26.
+
+---
+
+## Phase 2.5: Auto-approval policy (act vs. draft-only)
+
+**Do the FET check while triaging, before crafting any response.** Never write "we are checking / we will verify / we'll get back to you" for something you can resolve now. Look it up, take the action, then write the reply as a statement of what was done.
+
+Decide per email whether to **act + send** (perform the FET action and send the reply, not just save a draft) or **draft-only** (save a Gmail draft for Rico to review):
+
+**Auto-approve → act + SEND the reply:**
+- **Resend / "didn't get my QR" / QR not showing** → resend the ticket(s), then send the reply.
+- **"QR / ticket not found" but a valid registration exists** → resend, then send.
+- **Cancelled or incomplete order WITH proof of payment attached** → re-complete the order (`orders status … completed, send_ticket_email:true`), resend if needed, then send.
+- **Financial assistance follow-up** (chasing a coupon, "haven't received my code", "did my aid go through") → auto-approved. Run the `/financial-assistance` workflow to **issue the coupon directly** using its email-approved exception: assign the correct-tier coupon from the coupon tab, record the row in the tracker Sheet, then send the code in-thread. Do **not** defer to Finance and do **not** send a "we've asked Finance" holding reply. If the applicant's exact pay amount is unknown, use the tier already issued for the same requester's group / their prior coupons, or ask for the amount.
+
+**Ticket transfers → case-by-case:**
+- **Auto-approve** (proceed: reply asking for the transferee's full intake details — one complete set per ticket — or, if details + a prior approval already exist, process the transfer) when EITHER:
+  - the reason is an **unforeseen circumstance** (accident, unapproved/last-minute leave, sudden illness, calamity such as flooding affecting them or their church), OR
+  - the request is from **someone at another church holding multiple tickets** (they may be traveling in from the province).
+- **Never state the reason for approving in the reply. Just approve** (ask for details / proceed). Do not write "because of your situation" or "as an exception."
+- **Complete info + prior thread already approved** → execute the transfer now via the `/ticket-transfer` workflow (update the attendee, resend QR).
+- **Not auto-approved** (no qualifying reason, single ticket, unclear) → do NOT send. Collect these into one summary and ask Rico via `AskUserQuestion` (one option set per person: Approve / Decline) whether to approve for this run. Only after his answer do you act or finalize drafts.
+
+**Everything else not listed above → keep as a draft only** (policy answers, clarifications, informational replies, anything requiring Rico's judgment).
 
 ---
 
@@ -125,8 +151,51 @@ For each email that needs a reply, draft a warm, accurate reply, then save it as
 | Check if registered | `attendees { action: "query", event_query, search: "<email>" }` |
 | Count for an event | `attendees { action: "count", event_query }` |
 | Wrong email / update | `attendees { action: "update", attendee_id, ... }` then resend |
+| Ticket transfer (past deadline) | Collect full intake details → `attendees { action: "update", attendee_id, full_name, email, information }` then resend (see below) |
 | Order issue | `orders { action: "attendees", order_id }` |
+| Re-complete a cancelled/incomplete order (verified payment) | `orders { action: "status", order_id, status: "completed", send_ticket_email: true }`; if it returns `email_triggered: false`, resend the attendee ticket explicitly |
 | Unknown event name | `events { action: "search", search: "<name>" }` |
+
+### Ticket transfer request → collect full details, then update the attendee
+
+The self-service transfer form (`favor.church/tickettransfer`) **closed June 26**. Past-deadline transfers are now handled directly by the team. **Before processing any transfer, you must have the complete intake details below.** If the sender hasn't provided them, draft a reply (Phase 3) requesting them, asking for **one complete set per ticket**:
+
+```
+Transferring from:
+- Full name
+- Email
+- Ticket type (Adult / Student)
+
+Transferring to:
+- First name
+- Last name
+- Email address
+- Mobile number
+- Gender
+- Date of birth
+- Country
+- Which Favor location or church they're from
+- Their church involvement (member, volunteer, leader, etc.)
+- Would they like to be connected to our New People team? (yes or no)
+- Any special assistance needed during the conference? (or none)
+```
+
+Once you have the details (and any required approval — **group/multi-ticket transfers go to Ps Dawn & leadership first**):
+
+1. Find the "transferring from" attendee in FET: `attendees { action: "query", event_query, search: "<email or name>", include_ticket_fields: true }`.
+2. Run the update once with `dry_run: true` to preview, then commit with `dry_run: false`:
+   ```
+   attendees { action: "update", attendee_id: <from_attendee_id>,
+     full_name: "<First Last>", email: "<transferee email>",
+     information: { "first-name", "last-name", "gender", "mobile-number", "birthdate",
+       "which-country-are-you-from", "whats-your-church-involvement", ... },
+     dry_run: false, send_ticket_email: true }
+   ```
+3. **Student tickets:** the transferee must also be a student — capture and set their school (`what-is-your-school-university`).
+4. If the QR didn't auto-send, resend explicitly: `attendees { action: "resend", attendee_id, dry_run: false }`. Confirm completion in the reply.
+5. **Caveat:** the update response may show `order_sync: false`. The TEC attendee name/email (which drive the QR ticket) update correctly, but the WooCommerce **order-level meta** (IAC name / billing) may still show the old holder — reconcile via postmeta (see `~/claude/CLAUDE.md`) if a clean order record is needed.
+
+For complex or group transfers, route to the dedicated `/ticket-transfer` skill.
 
 ### Kids guardian update → update the attendee record
 

@@ -31,10 +31,14 @@ File shapes
       "merges":  [{"into":"Name|City","absorb":["Other|City","Frag|—"]}],
       "prune_zeros": "all" }      # "all" | "fragments" | "none" (default "fragments")
 """
-import json, re, sys
+import json, re, sys, unicodedata
 
 def norm_key(s):
-    return re.sub(r'[^a-z0-9]', '', (s or '').lower())
+    # Fold diacritics to ASCII but keep non-Latin letters (e.g. Korean church
+    # names): an all-non-Latin string must not collapse to '' = BLANK.
+    s = unicodedata.normalize('NFKD', (s or '').lower())
+    s = ''.join(ch for ch in s if not unicodedata.combining(ch))
+    return ''.join(ch for ch in s if ch.isalnum())
 
 def load_values(path):
     return json.load(open(path))

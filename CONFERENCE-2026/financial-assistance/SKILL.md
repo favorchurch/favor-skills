@@ -47,6 +47,17 @@ Default to a dry-run summary if the user asks to “check,” “review,” or �
    - Favor Conference 2026 → `REQUESTS`, `FC26-COUPONS`, `FC26-EmailTemplate`
    - If no obvious match, ask or suggest.
 
+## Email-Approved Requests (Gmail exception)
+
+When a financial assistance request is **approved directly over email** (e.g. handed off from the `triage-conference` workflow as a follow-up) and there is **no matching card on the Fluro board**, do NOT block on Fluro:
+
+- Skip Fluro intake and Fluro close entirely for that applicant. A missing board card is expected and fine here.
+- Assign the coupon **directly** from the coupon tab (Phase 4) and **add the full row to the tracker Sheet** (Phase 3), including the coupon code, so the code is drawn and recorded exactly once.
+- Draft/send the coupon email (Phases 5 & 7) as usual, in the applicant's email thread.
+- Determine the discount from the applicant's stated pay amount. If the amount is not in the email, use the tier already issued for the **same requester's group / their prior coupons** (check the tracker for their email), or ask for the exact amount. Never round to a nearby tier.
+
+This is an explicit exception to the board-first flow: email-approved requests are legitimate without a Fluro card. Everything else (exact-discount math, one coupon per applicant, tracker recording, sender enforcement) still applies.
+
 ## Phase 1: Intake New Cards
 
 1. From the board, select only cards with `stateKey: "new"`.

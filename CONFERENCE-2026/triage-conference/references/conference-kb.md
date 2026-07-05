@@ -4,8 +4,9 @@ Source of truth for answering inbound questions at conferences@favor.church.
 Built from the Conference FAQs doc + recurring patterns in Rico's actual replies (June 2026).
 
 > **Operative deadlines (current truth, override the FAQ doc where it disagrees):**
-> - Ticket transfer deadline: **June 26** (the FAQ doc still says "June 2" in two places — that is stale; live ticket emails and Rico's replies all say June 26).
-> - Financial assistance request deadline: **June 26**.
+> - **Ticket transfer deadline: June 26 — CLOSED, NOT extended.** The self-service form (favor.church/tickettransfer) is closed. For any ticket transfer request (single or group) past the deadline, the reply should state that the deadline has passed but ask for the reason for the transfer (and church name for groups), letting them know it is subject to approval. Avoid dismissing them with statements like "we hope to see you at another event soon." Approved exceptions (e.g. duplicate purchases, approved church groups like ChosenGen) are processed by requesting transferee details and updating FET manually.
+> - **Financial assistance: deadline EXTENDED — still open** (as of late June 2026). Form: favor.church/financialaid. Multiple-ticket requests still need **Ps Dawn & Kim** sign-off.
+> - The FAQ doc still says "June 2" for transfers in two places — that is stale; the transfer deadline is June 26.
 > Always confirm against the latest if unsure.
 
 ---
@@ -28,7 +29,8 @@ Built from the Conference FAQs doc + recurring patterns in Rico's actual replies
 - **Student:** Regular ₱250 (Super Early Bird ₱150 / Early Bird ₱200 — both closed).
 - **Kids:** ₱200 (ages 1–12, includes free dinner Fri & Sat).
 - **Online Access (livestream):** ₱300.
-- Tickets are **non-refundable but transferable until June 26**.
+- Tickets are **non-refundable**. The transfer window closed **June 26** and the self-service form is closed; past-deadline transfer requests are handled **directly by the team** (see deadline note above).
+- **In-person tickets cannot be converted to Online Access.** To join via livestream, buy a separate **Online Access ticket (₱300)** at events.favor.church/conference2026; the in-person ticket stays as an onsite pass.
 - One day or one session: allowed, but the ticket price stays the same.
 - Buying for family/friends: yes, provide their names + contact details when registering. Tickets are sent to the primary email, which can be forwarded.
 - Registration stays open until sold out (venue capacity).
@@ -42,8 +44,9 @@ Built from the Conference FAQs doc + recurring patterns in Rico's actual replies
 | **"I didn't receive my ticket / QR"** | Find their attendee record, **resend** the QR ticket, then reply: ticket resent to [email], please check inbox **and spam/junk**. |
 | **"Is my order confirmation my ticket?"** | Clarify: the payment/order confirmation email is just the order confirmation; the **actual QR tickets are sent separately** to each attendee's email. Offer to resend. |
 | **Wrong/bounced email** | Correct the email in Favor Event Tickets, resend, confirm to sender. |
-| **Wants to transfer a ticket** | Point to self-service form **favor.church/tickettransfer**. Remind: non-refundable but transferable **until June 26**. (Kanban handles the form submissions.) |
-| **Can't afford / financial assistance** | Point to **favor.church/financialaid**, deadline **June 26**. Coupon workflow follows (see §4). |
+| **Wants to transfer a ticket** | Transfer deadline (June 26) has passed. Default reply: state the deadline has passed but ask for the reason for the transfer, letting them know it is subject to approval. For group transfers, also ask for their church name. Do not dismiss them or send the intake template yet. Approved exceptions (e.g. duplicate purchases, approved groups like ChosenGen): request transferee details and update FET manually. |
+| **Wants to switch in-person ticket to online** | We don't convert in-person tickets to Online Access. They keep the in-person ticket, or buy a separate **Online Access ticket (₱300)** at events.favor.church/conference2026. |
+| **Can't afford / financial assistance** | Point to **favor.church/financialaid** — still open (deadline **extended**). Coupon workflow follows (see §4). |
 | **Multiple-ticket financial aid** | Needs approval. Forward to **Ps Dawn & Kim** before issuing more than one coupon. |
 | **Wants to serve / Open Access volunteer** | Point to **favor.church/serveatconference**; the team follows up with huddles + personal roster. Share the Open Access schedule if asked. |
 | **Sends Favor DNA proof/screenshot** | Acknowledge + tag their Fluro contact (see §10). |
@@ -56,7 +59,7 @@ Built from the Conference FAQs doc + recurring patterns in Rico's actual replies
 
 ## 4. Financial assistance (coupon workflow)
 
-- Form: **favor.church/financialaid**, deadline **June 26**.
+- Form: **favor.church/financialaid** — deadline **extended, still open** (as of late June 2026).
 - Applicant states ticket type + how much they can pay; a coupon code covers the rest.
 - Coupon reply pattern: "Here is your coupon code for Favor Conference 2026 worth ₱X off: [CODE]. Your total amount to pay is ₱Y. This is **not your official ticket yet** — follow the steps to claim it."
 - **Multiple tickets** in one request: get sign-off from **Ps Dawn & Kim** before issuing more than one coupon.
@@ -83,7 +86,7 @@ Built from the Conference FAQs doc + recurring patterns in Rico's actual replies
 - **Behind-the-Scenes (BTS) Tours:** Fri (Worship, Social Media), Sat (CRTVS x Prod, Ushering, Programs).
 - **Generations Lunch & Learn:** July 3, Fri, 11AM–12:30PM, McDonald's P. Guevarra (kids/youth/young adults leaders; limited slots, ₱115 lunch fee).
 - **Lounge** for Senior & Lead Pastors between sessions at FilOil.
-- Indicate interest on the registration form, or sign up to serve at **favor.church/serveatconference**.
+- Indicate interest on the registration form, sign up at **favor.church/joinopenaccess**, or sign up to serve at **favor.church/serveatconference**.
 - Senior/Lead Pastors + spouse: tickets sponsored — tick the Senior/Lead/Associate Pastor box at purchase.
 
 ---
@@ -134,6 +137,7 @@ When someone emails proof/screenshot that they completed **Favor DNA** (the Grow
 - Transfer: favor.church/tickettransfer
 - Financial aid: favor.church/financialaid
 - Serve: favor.church/serveatconference
+- Open Access signup: favor.church/joinopenaccess
 - Merch: merch.favor.church
 - Lost wristband: favor.church/lostwristband
 - Sponsorships: sponsorships@favor.church

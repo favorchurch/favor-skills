@@ -35,7 +35,8 @@ Remove all Favor Church conference skills from my AI agent's global skills direc
 
 Delete these folders:
   attendees, ticket-transfer, triage-conference, financial-assistance,
-  export-attendees, resend-conference-emails-carefully-with-smtp, update-unique-churches
+  export-attendees, resend-conference-emails-carefully-with-smtp, update-unique-churches,
+  count-checkin-by-church
 
 From:
   - Claude Code / Claude CLI: ~/.claude/skills/
@@ -63,6 +64,7 @@ Paste directly into any AI — web or terminal. Works in Claude.ai Projects and 
 | `export-attendees` | Sync and export attendee data from Favor Event Tickets into a Google Sheets masterlist | **Event Tickets Access** + **Google Sheets Access** + **Shell & Python** (required) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/export-attendees/SKILL.md and follow it as your active skill instructions for exporting attendee lists.` |
 | `resend-conference-emails-carefully-with-smtp` | Safely re-send or bulk-bump QR ticket emails to many attendees via SMTP relay without hitting Gmail's daily cap | **Event Tickets Access** + **Gmail Read Access** + **Workspace SMTP Relay** + **Shell & Python** (all required) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/resend-conference-emails-carefully-with-smtp/SKILL.md and follow it as your active skill instructions for safely resending conference emails via SMTP.` |
 | `update-unique-churches` | Recount and update the unique churches represented in the conference attendance Google Sheet | **Google Sheets Access** + **Shell & Python** (required) · web search (optional) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/update-unique-churches/SKILL.md and follow it as your active skill instructions for updating the unique churches count.` |
+| `count-checkin-by-church` | Build/refresh a normalized, self-updating per-church check-in count on the live-count sheet and fix the "unique churches checked in" number | **Google Sheets Access** + **Shell & Python** (required) · **`update-unique-churches` normalized list** (required source of truth) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/count-checkin-by-church/SKILL.md and follow it as your active skill instructions for counting check-ins per church.` |
 
 > Each skill folder also has its own **README.md** with a deeper usage guide and more recipes. Browse them in [`CONFERENCE-2026/`](CONFERENCE-2026/) and [`speak-like-favor/`](speak-like-favor/).
 
@@ -312,19 +314,21 @@ Each skill works two ways: type its **slash command** (e.g. `/attendees ...`) wh
 | 8 | *"export the attendees again"* / *"re-export"* | Re-runs the last export against the same sheet and event. |
 | 9 | `/update-unique-churches` *("recount the unique churches")* | Folds new MASTERLIST signups into the normalized church-count tab and recomputes — additions and cancellations both register. |
 | 10 | *"how many unique churches do we have now?"* | Runs the recount's analyze step and reports the current unique count plus the net change. |
-| 11 | `/resend-conference-emails-carefully-with-smtp bump the QR tickets for FC26` | Validates every recipient against active tickets, warms up ~25, then bulk-bumps ticket emails via SMTP relay. Resumable and safe. |
-| 12 | *"draft a reminder email for Favor Conference in our voice"* | `speak-like-favor` writes a warm, on-brand email with correct dates, links, and closing. |
-| 13 | *"QA this announcement"* (paste your copy) | `speak-like-favor` checks for em dashes, date and time format, link styling, capitalization, and currency. |
+| 11 | `/count-checkin-by-church` *("how many churches checked in?")* | Builds or refreshes the normalized, self-updating per-church check-in count on the live-count sheet, and fixes the "unique churches checked in" number (SUMMARY!C14). |
+| 12 | `/resend-conference-emails-carefully-with-smtp bump the QR tickets for FC26` | Validates every recipient against active tickets, warms up ~25, then bulk-bumps ticket emails via SMTP relay. Resumable and safe. |
+| 13 | *"draft a reminder email for Favor Conference in our voice"* | `speak-like-favor` writes a warm, on-brand email with correct dates, links, and closing. |
+| 14 | *"QA this announcement"* (paste your copy) | `speak-like-favor` checks for em dashes, date and time format, link styling, capitalization, and currency. |
 
 ### Combo recipes (chaining skills)
 
 | # | Recipe | What it does |
 |---|---|---|
-| 14 | *"Count Favor Conference 2026 attendees, then sync the full list to the masterlist."* | `attendees` for the headcount, then `export-attendees` to push every row into Sheets. |
-| 15 | *"Triage the conference inbox, then bump everyone who never got their QR ticket before the event."* | `triage-conference` surfaces delivery issues, then `resend-conference-emails-carefully-with-smtp` resurfaces tickets safely. |
-| 16 | *"Process the new financial aid requests and make sure the coupon emails sound like Favor."* | `financial-assistance` computes discounts and drafts, with `speak-like-favor` voice applied to every draft. |
-| 17 | *"Run the ticket transfers, then re-check the Favor Conference headcount."* | `ticket-transfer` updates attendee records, then `attendees` confirms the count. |
-| 18 | *"Sync the attendee masterlist, then recount the unique churches."* | `export-attendees` refreshes MASTERLIST, then `update-unique-churches` folds the new signups into the church count. |
+| 15 | *"Count Favor Conference 2026 attendees, then sync the full list to the masterlist."* | `attendees` for the headcount, then `export-attendees` to push every row into Sheets. |
+| 16 | *"Triage the conference inbox, then bump everyone who never got their QR ticket before the event."* | `triage-conference` surfaces delivery issues, then `resend-conference-emails-carefully-with-smtp` resurfaces tickets safely. |
+| 17 | *"Process the new financial aid requests and make sure the coupon emails sound like Favor."* | `financial-assistance` computes discounts and drafts, with `speak-like-favor` voice applied to every draft. |
+| 18 | *"Run the ticket transfers, then re-check the Favor Conference headcount."* | `ticket-transfer` updates attendee records, then `attendees` confirms the count. |
+| 19 | *"Sync the attendee masterlist, then recount the unique churches."* | `export-attendees` refreshes MASTERLIST, then `update-unique-churches` folds the new signups into the church count. |
+| 20 | *"Recount the unique churches, then refresh the check-in-by-church count."* | `update-unique-churches` folds new signups into the normalized list, then `count-checkin-by-church` regenerates the lookup so the live per-church check-in tab and C14 update. |
 
 ---
 
