@@ -22,6 +22,12 @@ Paste into any terminal-capable AI (Claude Code, Gemini CLI, Cursor, Windsurf, o
 Install the "speak-like-favor" folder from https://github.com/favorchurch/favor-skills into my AI agent's global skills directory, then confirm SKILL.md is present.
 ```
 
+#### Install Core Skill (`update-sunday-signups-sheet`)
+
+```text
+Install the "update-sunday-signups-sheet" folder from https://github.com/favorchurch/favor-skills into my AI agent's global skills directory, then confirm SKILL.md is present.
+```
+
 #### Install All Conference Skills
 
 ```text
@@ -57,6 +63,7 @@ Paste directly into any AI — web or terminal. Works in Claude.ai Projects and 
 | Skill | Description | Requirements (capability buckets) | Prompt to paste |
 |---|---|---|---|
 | `speak-like-favor` | Favor Church Manila voice and tone — drafting, editing, and QA-ing emails, announcements, invitations, and church copy | None | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/speak-like-favor/SKILL.md and follow it as your active writing and voice guidelines for this conversation.` |
+| `update-sunday-signups-sheet` | Compute and write the weekly CONNECT/SERVE/BUILD/FAVOR DNA signup counts into the CIW / SIGNUPS Google Sheet tab, sourced from Rock RMS (with residual Fluro union during the 2026 cutover) | **Rock RMS Access** + **Google Sheets Access** (required) · **Fluro Access** (cutover-only, tapering to unneeded) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/update-sunday-signups-sheet/SKILL.md and follow it as your active skill instructions for updating the weekly CIW signup counts.` |
 | `attendees` | Look up registered or checked-in attendee counts for any event via Favor Event Tickets or Fluro | **Event Tickets Access** (required) · **Fluro Access** (optional fallback) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/attendees/SKILL.md and follow it as your active skill instructions for looking up event attendee counts.` |
 | `ticket-transfer` | End-to-end workflow for processing ticket transfer requests from the Fluro kanban, including attendee updates and confirmation emails | **Fluro Access** + **Event Tickets Access** (required) · **Gmail Draft Access** (required for emails) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/ticket-transfer/SKILL.md and follow it as your active skill instructions for handling ticket transfers.` |
 | `triage-conference` | Triage the conferences@favor.church inbox, draft smart replies, and surface Favor Event Tickets action items | **Gmail Draft Access** + bundled KB (required) · **Event Tickets Access** (required for actions) · **Fluro Access** (optional) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/triage-conference/SKILL.md and follow it as your active skill instructions for conference attendee triage.` |
@@ -318,17 +325,18 @@ Each skill works two ways: type its **slash command** (e.g. `/attendees ...`) wh
 | 12 | `/resend-conference-emails-carefully-with-smtp bump the QR tickets for FC26` | Validates every recipient against active tickets, warms up ~25, then bulk-bumps ticket emails via SMTP relay. Resumable and safe. |
 | 13 | *"draft a reminder email for Favor Conference in our voice"* | `speak-like-favor` writes a warm, on-brand email with correct dates, links, and closing. |
 | 14 | *"QA this announcement"* (paste your copy) | `speak-like-favor` checks for em dashes, date and time format, link styling, capitalization, and currency. |
+| 15 | `/update-sunday-signups-sheet` *("update the CIW signup counts")* | Computes this week's Rock (+ residual Fluro) CONNECT/SERVE/BUILD/FAVOR DNA counts and writes them into the CIW / SIGNUPS sheet. |
 
 ### Combo recipes (chaining skills)
 
 | # | Recipe | What it does |
 |---|---|---|
-| 15 | *"Count Favor Conference 2026 attendees, then sync the full list to the masterlist."* | `attendees` for the headcount, then `export-attendees` to push every row into Sheets. |
-| 16 | *"Triage the conference inbox, then bump everyone who never got their QR ticket before the event."* | `triage-conference` surfaces delivery issues, then `resend-conference-emails-carefully-with-smtp` resurfaces tickets safely. |
-| 17 | *"Process the new financial aid requests and make sure the coupon emails sound like Favor."* | `financial-assistance` computes discounts and drafts, with `speak-like-favor` voice applied to every draft. |
-| 18 | *"Run the ticket transfers, then re-check the Favor Conference headcount."* | `ticket-transfer` updates attendee records, then `attendees` confirms the count. |
-| 19 | *"Sync the attendee masterlist, then recount the unique churches."* | `export-attendees` refreshes MASTERLIST, then `update-unique-churches` folds the new signups into the church count. |
-| 20 | *"Recount the unique churches, then refresh the check-in-by-church count."* | `update-unique-churches` folds new signups into the normalized list, then `count-checkin-by-church` regenerates the lookup so the live per-church check-in tab and C14 update. |
+| 16 | *"Count Favor Conference 2026 attendees, then sync the full list to the masterlist."* | `attendees` for the headcount, then `export-attendees` to push every row into Sheets. |
+| 17 | *"Triage the conference inbox, then bump everyone who never got their QR ticket before the event."* | `triage-conference` surfaces delivery issues, then `resend-conference-emails-carefully-with-smtp` resurfaces tickets safely. |
+| 18 | *"Process the new financial aid requests and make sure the coupon emails sound like Favor."* | `financial-assistance` computes discounts and drafts, with `speak-like-favor` voice applied to every draft. |
+| 19 | *"Run the ticket transfers, then re-check the Favor Conference headcount."* | `ticket-transfer` updates attendee records, then `attendees` confirms the count. |
+| 20 | *"Sync the attendee masterlist, then recount the unique churches."* | `export-attendees` refreshes MASTERLIST, then `update-unique-churches` folds the new signups into the church count. |
+| 21 | *"Recount the unique churches, then refresh the check-in-by-church count."* | `update-unique-churches` folds new signups into the normalized list, then `count-checkin-by-church` regenerates the lookup so the live per-church check-in tab and C14 update. |
 
 ---
 
@@ -342,6 +350,7 @@ git clone https://github.com/favorchurch/favor-skills.git /tmp/favor-skills
 # Claude Code — core + all conference skills
 mkdir -p ~/.claude/skills
 cp -r /tmp/favor-skills/speak-like-favor ~/.claude/skills/
+cp -r /tmp/favor-skills/update-sunday-signups-sheet ~/.claude/skills/
 cp -r /tmp/favor-skills/CONFERENCE-2026/. ~/.claude/skills/
 
 # Gemini CLI — core + all conference skills
@@ -385,6 +394,13 @@ favor-skills/
 │   │   └── qa-guidelines.md        # Extended QA standards
 │   └── agents/
 │       └── openai.yaml             # ChatGPT/Codex integration rules
+├── update-sunday-signups-sheet/    # Weekly Rock/Fluro signup counts → CIW / SIGNUPS sheet
+│   ├── SKILL.md                    # Column→source map, Rock workflow IDs, write mechanics
+│   ├── README.md                   # Usage guide + recipes
+│   ├── references/
+│   │   ├── source-map.md           # Sheet/column/Rock workflow-type reference
+│   │   └── learned-nuances.md      # Dated corrections and discoveries per run
+│   └── scripts/                    # Window/count/write helper scripts (Node + Python)
 └── CONFERENCE-2026/                # Conference-specific operation skills
     ├── attendees/
     │   ├── SKILL.md                # Attendee count workflow logic
@@ -429,6 +445,7 @@ This repo stores **no credentials**. Skills only need connections when you *run*
 | **Gmail Read Access** | Read/enumerate a mailbox (no sending) | Composio Gmail · `gws` CLI (with read scope) · Gmail MCP |
 | **Event Tickets Access** | Read/update attendees, orders, tickets, and events (WordPress/WooCommerce) | Favor Event Tickets MCP *(for ticket prices only, the public event page is a manual fallback)* |
 | **Fluro Access** | Read kanban boards, form submissions, and contacts; write tags and card moves | Fluro for Favor Church MCP |
+| **Rock RMS Access** | Read/count Rock RMS workflow submissions, people, and attributes | Rock RMS MCP (read-only prod) · prod Rock REST API key (for attribute-level detail) |
 | **Google Sheets Access** | Read and write spreadsheet values | Composio (`GOOGLESHEETS_*`) · `gws` CLI · Google Sheets MCP |
 | **Workspace SMTP Relay** | Send high volumes of email past Gmail's daily API cap | Google Workspace SMTP relay (`smtp-relay.gmail.com:587`) + an app password |
 | **Shell & Python** | Run helper scripts and download CSVs | A terminal with `bash`, `curl`, and Python 3 |
@@ -438,6 +455,7 @@ This repo stores **no credentials**. Skills only need connections when you *run*
 | Skill | Required | Optional |
 |---|---|---|
 | `speak-like-favor` | — (none) | — |
+| `update-sunday-signups-sheet` | Rock RMS Access · Google Sheets Access | Fluro Access (cutover-only) |
 | `attendees` | Event Tickets Access | Fluro Access (fallback) |
 | `ticket-transfer` | Fluro Access · Event Tickets Access · Gmail Draft Access (for emails) | — |
 | `triage-conference` | Gmail Draft Access · Event Tickets Access (for actions) | Fluro Access |
