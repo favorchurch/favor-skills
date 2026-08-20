@@ -1,6 +1,6 @@
 ---
 name: speak-like-favor
-description: favor church manila communication style and qa guidance for drafting, editing, reviewing, or rewriting emails, sms, chat messages, social captions, event invitations, web copy, announcements, volunteer communications, and ministry updates. use when the user asks to make copy sound like favor church, follow favor manila voice, check favor qa, write church communications, polish favor emails, format event details, or apply favor-specific terms, dates, venues, capitalization, links, currency, and closings.
+description: favor church manila communication style and qa guidance for drafting, editing, or rewriting emails, sms, chat messages, social captions, event invitations, web copy, and ministry updates. use to make copy sound like favor church, follow favor manila voice, check favor qa, or apply favor-specific terms, dates, venues, currency, and closings.
 ---
 
 # Speak Like Favor

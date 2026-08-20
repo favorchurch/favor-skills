@@ -2,6 +2,21 @@
 
 Append dated discoveries after each run. Keep entries short, factual, reusable.
 
+## 2026-08-10
+
+- Filled **row 186 (Sun Aug 09)**: CONNECT 30, SERVE 19, BUILD 23, FAVOR DNA 28. Row was entirely empty; wrote A="Aug 09 2026" and E:H.
+- **`scripts/signups-week-count.py` failed in a sandboxed `env -i` shell** (SSL cert verify failed — stripped-env urllib lost the system CA bundle) and `scripts/week-window.mjs` needed an explicit clean PATH (the default shell's `node` is an nvm-wrapped function that chokes under `env -i`, printing `_load_nvm: command not found` and eventually hitting `FUNCNEST`). Workaround: run `env -i PATH="/usr/local/bin:/opt/homebrew/bin:/usr/bin:/bin" node ...` for the window script, and fall back to the MCP `rock_entity count` path entirely (skip the Python REST helper) rather than fighting the sandboxed SSL context.
+- **MCP `rock_entity count` where-clause syntax**: plain `==`/`&&` LINQ-style with `DateTime(y,m,d,h,mi,s)` constructors worked directly, e.g. `WorkflowTypeId == 34 && CreatedDateTime >= DateTime(2026,8,3,12,0,0) && CreatedDateTime < DateTime(2026,8,10,12,0,0)`. No need for OData `datetime'...'` literal syntax this run.
+- One of six count calls (type 49 SERVE) hit a transient Cloudflare 502 (`origin_bad_gateway`); an immediate identical retry succeeded. Consistent with the 2026-07-27 note that transient MCP failures should just be retried once, not treated as a dead end.
+- No Delivery-Failed junk in CONNECT (26) this week — raw count == filtered count == 30. Saturday variants (71 BUILD, 61 FDNA) were both 0.
+- **Sheets API v4 write via curl**: do NOT combine `-G` (which forces `-d`/`--data-urlencode` onto the query string) with a JSON `-d` body in the same call — it corrupts the request ("Cannot bind query parameter"). Build the `valueInputOption=USER_ENTERED` query string directly in the URL, write the JSON body to a scratch file, and send it with `--data-binary @file` (no `-G`). Use `-G`+`--data-urlencode` only for GET reads.
+
+## 2026-08-03 — Fluro decommissioned; Rock-only going forward
+
+- Filled **row 185 (Sun Aug 02)**: CONNECT 40, SERVE 14, BUILD 10, FAVOR DNA 20. Row was entirely empty; wrote A="Aug 02 2026" and E:H.
+- **Rico confirmed Fluro has now been fully decommissioned.** Removed the Fluro union/dedup step from `SKILL.md`, `references/source-map.md`, and `scripts/signups-week-count.py` — all four columns are Rock-only, no more per-week Fluro-residual check needed. `scripts/fluro-week-count.mjs` is retired (kept only for historical reference).
+- **The `favor-connect-portal` repo (source of the Rock API key/env) has been renamed to `connect.favor.church`** at `~/Git/connect.favor.church/.env.production`. All references in this skill updated. If it moves again, search `~/Git` for `.env.production` containing `ROCK_API_KEY`.
+
 ## 2026-06-22
 
 - First run of this skill. Filled row 179 (week Sun 2026-06-21): CONNECT 19, SERVE 10, BUILD 21, FAVOR DNA 37.
@@ -33,11 +48,21 @@ Append dated discoveries after each run. Keep entries short, factual, reusable.
   - SERVE is **disjoint** (0 timestamp matches). Jul05: Rock 0 + Fluro 7 = 7. Jul12: Rock 6 + Fluro 13 = 19. ⇒ union == sum here.
   - Cutover is tapering: Fluro CONNECT dropped 21→3 across the two weeks. Keep aggregating until Fluro reliably hits 0, then go Rock-only.
 - **CONNECT junk**: type 26 had 17 `Status="Delivery Failed"` empty rows (Name "New Form", no Person/connectGroup) clustered 2026-07-12 10:30–13:36 (a form glitch). Filter = **exclude `Status=="Delivery Failed"` ONLY**. ⚠️ BUILD (34) & FDNA (30) workflows are *all* legitimately named **"New Form"** — filtering by Name zeroes them (learned the hard way; the helper had this bug). SERVE rows are "New Volunteer to Serve", `Status="Active"` (never auto-complete).
-- Rico's rule: **count archived connect signups too** (`connectPortalArchived==True` are real). The Delivery-Failed-only filter already keeps them.
+- The user's rule: **count archived connect signups too** (`connectPortalArchived==True` are real). The Delivery-Failed-only filter already keeps them.
 - **Manila-only**: Rock is now multi-campus (campus Id 1=Manila/MNL, 2=Brisbane, 3=Seoul, 4=Global). These six form types are Manila-scoped; verified **no BNE/SEL initiators** appear. Forms have **no campus field**; person `PrimaryCampusId` is mostly null (e.g. a clearly-Manila serve signup had null). ⇒ do NOT filter by person campus — just count the Manila form types.
 - **Rock REST API** (needed beyond the MCP — MCP can't read workflow AttributeValues [404] and ignores `$sort`): key at `~/Git/favor-connect-portal/.env.production` (`ROCK_API_KEY`, `ROCK_API_URL`), header `Authorization-Token`. WAF **403s** on (a) default `Python-urllib` User-Agent → send a curl UA; (b) `%27`-encoded single quotes → keep `'` `:` `,` literal in the query string. Alias→person campus via `GET /api/People/GetByPersonAliasId/{aliasId}`. Workflow form attrs via `GET /api/Workflows/{id}?loadAttributes=simple` (Person guid, connectGroup, connectPortalArchived, Status).
 - Fluro `_query` response is ~70 MB; Python `urllib` `IncompleteRead`s — fetch Fluro in **Node** (`fetch` handles it) or dump timestamps to a file.
 - New one-shot helper: **`scripts/signups-week-count.py [--start … --end …]`** → all four counts (Rock + deduped Fluro union) as JSON incl. `row_values_EH`. Validated: reproduces both rows above.
+
+## 2026-07-27
+
+- Filled **row 184 (Sun Jul 26)**: CONNECT 33, SERVE 25, BUILD 28, FAVOR DNA 20. A/B/D already present (A="Jul 26 2026", B=1267, D=10); C left blank for CIW team; E:H confirmed empty before write.
+- **`scripts/signups-week-count.py` timed out** on the Rock REST call this run (90s timeout hit) — fell back to the MCP `rock_entity count`/`search` path fully manually. Don't assume the helper always completes; have the manual fallback ready.
+- **`claude.ai Rock for Favor Church` MCP (readwrite mode) intermittently 403'd** ("blocked by a firewall/security service") on the first call for 4 of 6 workflow-type count queries, while 2 succeeded — pure transience, not tied to a specific type. Simple immediate retry of the exact same call succeeded every time. Don't abandon the query on one 403; retry once.
+- Workflow type 26 display name has changed from "MNL Sign up for a Connect Group!" (as of 2026-07-13) to **"GLB Sign up for a Connect Group!"** — same ID (26), same form, just re-labeled (Global?) in Rock's admin. Don't be thrown off by the name; the ID mapping (26=CONNECT, 49=SERVE, 34/71=BUILD, 30/61=FAVOR DNA) is still authoritative — verify via `rock_workflow workflowTypes` if in doubt.
+- **Saturday variants (BUILD 71, FDNA 61) were non-trivial this week** (8 each) after being ~0 for weeks — both mostly `Status="Active"` (not "Completed" like their weekday counterparts) but no `Delivery Failed` junk and no "New Form" naming anomaly. Per the standing junk rule (exclude `Status=="Delivery Failed"` only), these count as-is. Don't assume Saturday = 0; check every week.
+- Type 26 (CONNECT) junk this week: 37 raw rows, 4 `Status=="Delivery Failed"` (ids 5354, 5364, 5422, 5441) → valid 33. Type 49 (SERVE), 34 (BUILD), 30/61 (FDNA) had zero Delivery-Failed junk.
+- Fluro residual: CONNECT (`mnlSignUpForAConnectGroup`) = 0 in-window (cutover fully tapered, 3rd week running). SERVE (`signUpToServe`) = 1 in-window (`2026-07-26T08:35:28Z`, title "MNL | Volunteer to Serve") with **no matching Rock timestamp** among the 24 Rock SERVE rows → confirmed Fluro-only/disjoint per the standing rule → SERVE total = 24 + 1 = 25.
 
 ## 2026-07-20
 
