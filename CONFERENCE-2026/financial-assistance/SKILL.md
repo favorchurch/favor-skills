@@ -1,110 +1,140 @@
 ---
 name: financial-assistance
-description: Use when processing Favor Church financial assistance requests, coupon assignment, request tracking, Gmail drafts, sent-email follow-up, or Fluro kanban completion for conference assistance applicants.
+description: Use when processing Favor Church financial assistance requests from Rock — reading the MNL | Financial Assistance Requests connection board, calculating discounts, assigning coupon codes, updating the tracker Sheet, drafting and sending coupon emails from the event's sender, and moving kanban cards. Triggers on "financial assistance", "assistance requests", "coupon codes", "financial aid", "EC26 requests", "Echo assistance".
 ---
 
-# Financial Assistance
+# Financial Assistance (Rock)
 
 ## Overview
 
-Process Favor Church conference financial assistance requests end to end: read the Fluro kanban, calculate exact discounts from live ticket prices and applicant pay amounts, update the tracker Sheet, assign coupon codes, draft emails from the correct sender, then send and close kanban cards only after user gives the go-signal.
+Process Favor Church conference financial assistance requests end to end: read the **Rock** connection board, calculate exact discounts from live ticket prices and applicant pay amounts, update the tracker Sheet, assign coupon codes, draft emails **from the sender that event uses**, then send and close cards only after the user gives the go-signal.
 
 Core rule: never guess the applicant, event, ticket price, sender, coupon tier, or sent status. Verify each live system before writing.
 
-## Prerequisites
-
-Each requirement below is a **capability bucket** — any one of the listed tools satisfies it. Run this preflight before any phase. If a **Required** bucket has no connected tool, explain what it is, why this skill needs it, and how to connect one of the options, then **stop and ask the user to set it up** before continuing — never guess a price, coupon, or sender to work around a missing tool.
-
-| Capability | Type | Satisfied by (any one) | If missing |
-|---|---|---|---|
-| **Fluro Access** (`kanban`, `item`, `update`) | Required | Fluro for Favor Church MCP | The requests live on the `mnlFinancialAssistanceRequests` board; without it there is nothing to intake or close. Ask the user to connect Fluro, then wait. |
-| **Google Sheets Access** | Required | Composio (`GOOGLESHEETS_*`) · `gws` CLI · Google Sheets MCP | The tracker (`REQUESTS`) and coupon tabs live in Sheets. Ask the user to connect a Sheets-capable tool, then wait. |
-| **Gmail Draft Access** (send-as `conferences@favor.church`) | Required for Phases 5 & 7 | Gmail MCP/CLI with send-as · Composio Gmail with verified send-as · `gws` CLI | Drafts/sends must come from the correct sender. If no connected tool can enforce the `From` address, **do not create wrong-sender drafts** — give the user install/auth instructions plus ready-to-send text instead (see Sender Enforcement). |
-| **Event Tickets Access** | Required for live prices (has fallback) | Favor Event Tickets MCP · *fallback:* the official event page (e.g. `favor.church/conference`) | Used to read live ticket prices for the discount math. If missing, fall back to the official event page and tell the user; only use user-provided prices if they explicitly confirm. |
-| `speak-like-favor` skill | Recommended | the `speak-like-favor` skill | Keeps coupon emails in Favor voice + the standout coupon block. If absent, apply the HTML rules inlined in Phase 5. |
+> **Fluro is retired.** There is no Fluro board, no `mnlFinancialAssistanceRequests` process, and no Fluro link anywhere in this workflow. If a tab, note, or older instruction mentions Fluro, it is stale — the Rock connection board is the only source.
 
 ## Fixed Systems
 
 | System | Value |
 | --- | --- |
-| Fluro board | `64afa26a6a4b2c0033c9bccf` / `mnlFinancialAssistanceRequests` |
-| Board title | `MNL | Financial Assistance Requests` |
-| Spreadsheet | `1gWT7fB-TWRQwIHrlxpAjBo7scHBbIqlAcxSyUdmt9So` |
-| Tracker tab | `REQUESTS` unless user specifies otherwise |
+| Environment | **PROD — `rock.favor.church`** (announce this on every Rock call, read or write) |
+| Connection Type | `4` — `MNL \| Financial Assistance Requests` |
+| Form (WorkflowType) | `58` — `MNL Financial Assistance Request` |
+| Kanban board | `https://rock.favor.church/connections` |
+| Spreadsheet | `1gWT7fB-TWRQwIHrlxpAjBo7scHBbIqlAcxSyUdmt9So` ("Conferences - Financial Assistance 2026") |
+| Config tab | `CONFIG` — **read this first, every run** |
+| Tracker tab | `REQUESTS` unless the user specifies otherwise |
 | Default sender | `conferences@favor.church` |
-| No-browser rule | Do not use Chrome, browser automation, or manual web UI control |
+| No-browser rule | Do not use Chrome, browser automation, or manual web UI control for processing |
 
-Use Fluro MCP first, Google Sheets MCP or `gws`/Composio for Sheets, Gmail MCP or a CLI/MCP that can enforce send-as for email, and Event Tickets MCP or the official event page for live ticket prices.
+### The CONFIG tab is the source of truth
 
-Default to a dry-run summary if the user asks to “check,” “review,” or “process” without explicitly authorizing writes. Proceed with writes when the user asks to update, draft, assign, move, send, or otherwise complete a phase.
+Never hardcode an event, opportunity id, sender, or tab name. Read `CONFIG!A2:K` and resolve per event:
 
-## Resolve Event And Tabs
+| Column | Meaning |
+| --- | --- |
+| `Event Code` | e.g. `EC26` |
+| `Event Name` | e.g. `Echo Conference 2026` |
+| `Status` | `ACTIVE` / `ARCHIVED` / `DEFAULT` |
+| `Rock Opportunity ID` | the ConnectionOpportunity this event's cards live on |
+| `Coupon Tab` / `Template Tab` | which tabs to read |
+| `Sender (FROM)` / `CC` | who the email comes from |
+| `Event Page URL` | for live ticket prices when the Tickets MCP is down |
 
-1. Read the Fluro board with `kanban.boards` using search text such as `Financial Assistance`; verify the returned `_id` is `64afa26a6a4b2c0033c9bccf`.
-2. Determine the event from the process criteria and linked submission `rawData.event`.
-3. If multiple events or tabs could apply, ask user which event/tab before writing.
-4. Map event to tabs by convention and Sheet metadata. Examples:
-   - Favor Conference 2026 → `REQUESTS`, `FC26-COUPONS`, `FC26-EmailTemplate`
-   - If no obvious match, ask or suggest.
+Resolution rules:
 
-## Email-Approved Requests (Gmail exception)
+1. Match the submission's event to a row with `Status = ACTIVE`.
+2. Sender = that row's `Sender (FROM)`, **overridden by** the `FROM` value on the event's template tab if the two disagree — and when they disagree, say so and ask before sending.
+3. If no row matches, fall back to the `DEFAULT` row's sender (`conferences@favor.church`) and **tell the user** you fell back.
+4. Never send from a sender that does not appear on `CONFIG`.
+5. Rows marked `ARCHIVED` are historical only — never assign coupons from an archived tab.
 
-When a financial assistance request is **approved directly over email** (e.g. handed off from the `triage-conference` workflow as a follow-up) and there is **no matching card on the Fluro board**, do NOT block on Fluro:
+Current state: `EC26` → opportunity `9`, tabs `EC26-Coupons` / `EC26-Template`, sender **`echo@favor.church`**. `FC26`, `HS26`, `WOR26` are archived (tabs renamed `ARCHIVE — …` and hidden).
 
-- Skip Fluro intake and Fluro close entirely for that applicant. A missing board card is expected and fine here.
-- Assign the coupon **directly** from the coupon tab (Phase 4) and **add the full row to the tracker Sheet** (Phase 3), including the coupon code, so the code is drawn and recorded exactly once.
-- Draft/send the coupon email (Phases 5 & 7) as usual, in the applicant's email thread.
-- Determine the discount from the applicant's stated pay amount. If the amount is not in the email, use the tier already issued for the **same requester's group / their prior coupons** (check the tracker for their email), or ask for the exact amount. Never round to a nearby tier.
+### Kanban lanes (ConnectionStatus ids)
 
-This is an explicit exception to the board-first flow: email-approved requests are legitimate without a Fluro card. Everything else (exact-discount math, one coupon per applicant, tracker recording, sender enforcement) still applies.
+| Id | Lane | Use |
+| --- | --- | --- |
+| `14` | New Requests | Intake source (default lane for every submission) |
+| `15` | Clarification Needed | Invalid / missing data |
+| `16` | Email & Coupon Sent | Only after a verified send |
+| `17` | No Coupon | Only if the user decides no coupon |
+| `18` | Event Finished | Not part of normal processing |
 
-## Phase 1: Intake New Cards
+## Prerequisites
 
-1. From the board, select only cards with `stateKey: "new"`.
-2. For each card, fetch the process record, then fetch its linked interaction from the process `item` field.
-3. Extract from `interaction.rawData.contact`:
-   - first name, last name, email, phone, church, ticket type, amount able to pay, reason
-   - event from `rawData.event`
-   - process card id and interaction id
-4. Match by actual submission details, not by card title. The card title is generic.
-5. Save all inspected New items to a CSV in the current project directory or as an artifact before writing Sheets. Name it like `FC26_financial_assistance_new.csv` or `<event-code>_financial_assistance_new_<YYYYMMDD>.csv`.
+Each requirement is a **capability bucket** — any one listed tool satisfies it. Run this preflight before any phase. If a **Required** bucket has no connected tool, explain what it is, why the skill needs it, and how to connect it, then **stop and ask** — never guess a price, coupon, or sender to work around a missing tool.
 
-Do not move cards in this phase.
+| Capability | Type | Satisfied by (any one) | If missing |
+|---|---|---|---|
+| **Rock access** | Required | `Rock_for_Favor_Church` MCP (`rock_form`, `rock_entity`, `rock_workflow`) · Rock REST via the `rock-favor` plugin's `rock_api.py` | The requests and the board live in Rock; without it there is nothing to intake or close. |
+| **Google Sheets access** | Required | Composio (`GOOGLESHEETS_*`) · `gws` CLI · Sheets MCP | `CONFIG`, `REQUESTS` and the coupon tabs live in Sheets. |
+| **Gmail send-as** | Required for Phases 5 & 7 | Gmail MCP/CLI with send-as · Composio Gmail with verified send-as · `gws` | Drafts must come from the event's sender. If no tool can enforce `From`, **do not create wrong-sender drafts** (see Sender Enforcement). |
+| **Event Tickets access** | Required for live prices (has fallback) | `Favor_Event_Tickets` MCP · *fallback:* the `Event Page URL` on `CONFIG` | Used for live ticket prices. If both fail, ask the user for prices — never assume last year's. |
+| `speak-like-favor` skill | Recommended | the `speak-like-favor` skill | Keeps coupon emails in Favor voice. If absent, apply the HTML rules inlined in Phase 5. |
+
+Default to a **dry-run summary** if the user asks to "check", "review", or "process" without explicitly authorizing writes. Proceed with writes when they ask to update, draft, assign, move, send, or complete a phase.
+
+## Reading a request: two sources, one applicant
+
+Rock splits this data across two records. You need both.
+
+| What you need | Where it lives | How to read it |
+| --- | --- | --- |
+| **The answers** (event, ticket type, amount able to pay, reason, church, pastor flag) | the **form submission** (workflow instance of WT58) | `rock_form action=listSubmissions workflowTypeId=58` (add `limit`/`offset`; `exportSubmissions` for bulk) |
+| **The card / lane state** | the **ConnectionRequest** | `rock_entity action=search model=connectionrequests where='ConnectionOpportunityId == <id>'` |
+
+**Known gap (as of 2026-08-14):** WT58's "Create Connection Request" action does not copy the answers onto the card, so the ConnectionRequest's own attributes (`SeniorPastor`, `Church`, `TicketType`, `AmountAbleToPay`, `Reason`) are **empty on every card**. Do not read them and do not treat blank as `0` — read the submission instead. Re-check this each run: if those attributes start coming back populated, the copy action has been configured and you may prefer them.
+
+**Joining a submission to its card:**
+
+1. Submission field `Requester` is a **person alias GUID** → resolve to a person (`rock_people`), then match `ConnectionRequest.PersonAliasId`.
+2. Tie-break on time: the card is created within seconds of the submission's `completedDateTime`.
+3. If one person has two cards on the same opportunity, that is a **duplicate ambiguity** — clarification, not a guess.
+
+## Phase 1: Intake
+
+1. Announce: *"Reading Rock prod (rock.favor.church)."*
+2. Resolve the event and its opportunity id from `CONFIG`.
+3. List cards on that opportunity in lane `14` (New Requests).
+4. Pull submissions with `rock_form listSubmissions workflowTypeId=58` and join each card to its submission.
+5. Extract per applicant: first/last name, email, phone, church, ticket type, amount able to pay, reason, event, **ConnectionRequest id**, **submission (workflow) id**.
+6. Save all inspected New items to a CSV before writing Sheets, named `<EVENT-CODE>_financial_assistance_new_<YYYYMMDD>.csv` (e.g. `EC26_financial_assistance_new_20260814.csv`).
+
+Do not move any card in this phase.
+
+Skip and flag any submission where `SeniorPastor = Yes` — pastors' tickets are already free and that branch collects no ticket/amount fields, so there is nothing to price. As of 2026-08-14 the form hides its Submit button for that branch and points pastors at `echo@favor.church` instead, so these should be rare; if one still appears, report it separately for the user to handle by hand.
 
 ## Clarification Rules
 
-Move a card to `step_4` / “Clarification Needed” and report the reason when any of these are true:
+Move a card to lane `15` (Clarification Needed) and report the reason when any of these are true:
 
 | Issue | Why |
 | --- | --- |
 | Missing or invalid email | Cannot draft/send safely |
 | Missing ticket type | Cannot determine ticket cost |
-| Missing, non-numeric, or ambiguous pay amount | User said the amount they put is exactly honored |
-| Pay amount is greater than live ticket cost | Discount would be negative |
-| Event is missing or mismatched | Wrong template/coupon risk |
+| Missing, non-numeric, or ambiguous pay amount | The amount they wrote is honored exactly |
+| Pay amount greater than the live ticket cost | Discount would be negative |
+| Event missing, archived, or mismatched | Wrong template/coupon risk |
 | No matching template tab | Email cannot be generated faithfully |
-| No available coupon for computed discount | Cannot honor the exact approved discount |
-| Duplicate applicant/card ambiguity | Risk of assigning the wrong coupon |
+| No unused coupon at the computed discount | Cannot honor the exact approved discount |
+| Duplicate applicant / two cards for one person | Risk of assigning the wrong coupon |
+| No submission joined to the card | Nothing to price — investigate before acting |
 
-For clarification cards: do not add to the live tracker, do not allocate a coupon, and do not draft an email unless Rico explicitly decides the missing value.
+For clarification cards: do not add to the tracker, do not allocate a coupon, do not draft an email — unless the user explicitly decides the missing value.
 
 ## Phase 2: Live Ticket Prices
 
-Calculate discounts from live ticket prices.
-
 Preferred order:
-1. Event Tickets MCP for the event and ticket types.
-2. Official event page, such as `favor.church/conference`, when MCP is unavailable.
-3. User-provided prices only if user explicitly confirms.
 
-Formula:
+1. `Favor_Event_Tickets` MCP for the event and ticket types.
+2. The `Event Page URL` from `CONFIG` when the MCP is unavailable or timing out.
+3. User-provided prices only if they explicitly confirm.
 
 ```text
 amount_to_pay = exact numeric value from the applicant
-discount = live_ticket_cost(ticket_type) - amount_to_pay
+discount      = live_ticket_cost(ticket_type) - amount_to_pay
 ```
-
-Examples:
 
 | Ticket Cost | Applicant Can Pay | Discount |
 | --- | ---: | ---: |
@@ -112,164 +142,154 @@ Examples:
 | Student `250` | `100` | `150` |
 | Adult `1000` | `0` | `1000` / full discount |
 
-Do not round to a nearby coupon tier. If the exact discount tier does not exist, treat it as clarification/no available coupon.
+Never round to a nearby coupon tier. If the exact tier does not exist, it is clarification / no available coupon.
 
 ## Phase 3: Update REQUESTS
 
-1. Read Sheet metadata and the target tab headers first.
-2. Infer columns by header names, not fixed column letters.
-3. Append or fill rows only for non-clarification applicants.
-4. Include the raw applicant data, event, ticket type, amount to pay, calculated discount, coupon code once assigned, process card id, and email fields where matching headers exist.
-5. Leave the `Sent` checkbox unchecked until the email is actually sent.
+1. Read the `REQUESTS` headers first (row 3). **Infer columns by header name, never by fixed letter** — the tab has a code-generator widget sitting in the middle of the columns.
+2. Current headers include: `DISCOUNT`, `Event`, `Ticket Type`, `Coupon Discount`, `Amount to Pay`, `First Name`, `Last Name`, `Email`, `Sent`, `Rock Request ID`, `Sender Used`, `Date Sent`.
+3. Append rows only for non-clarification applicants.
+4. Always fill `Rock Request ID` — it is the join key back to the board.
+5. Leave `Sent` unchecked until the email is actually sent.
 
-After writing, re-read the inserted rows and confirm:
-- row count matches processed applicants
-- names, emails, ticket types, pay amounts, discounts, and coupon codes are correct
-- `Sent` remains unchecked before go-signal
+Re-read the inserted rows afterwards and confirm row count, names, emails, ticket types, pay amounts, discounts, coupon codes, and that `Sent` is still unchecked.
 
 ## Phase 4: Assign Coupons
 
-1. Read the coupon tab headers and enough rows to find coupon blocks.
-2. Identify coupon blocks by header text:
-   - `FULL DISCOUNT` means full discount
-   - `P900 off`, `P150 off`, etc. map to numeric discounts
-3. For each applicant, find the block matching the exact discount amount.
-4. In that block, find the first row where:
-   - coupon code exists
-   - `Used?` cell is `FALSE` or unticked
-   - `Gave To` cell is blank
-5. Write:
-   - `Used?` = `TRUE`
-   - `Gave To` = full name
-6. Record the coupon code back into the tracker row.
+The coupon tabs are **normalized — one row per coupon** (this replaced the old side-by-side tier blocks).
 
-Use one coherent Sheets batch when practical, but avoid a huge mixed batch. Re-read the edited coupon cells after writing.
+Headers (row 3): `Coupon Code` · `Discount (PHP)` · `Tier Label` · `Ticket Type Scope` · `Used?` · `Gave To` · `Email` · `Date Assigned` · `Rock Request ID` · `Notes`
 
-Do not delete old coupon columns unless user specifically asks. If old event columns interfere with the active coupon generator, report them first and ask.
+1. Read the event's coupon tab from `CONFIG`.
+2. For each applicant, filter to rows where `Discount (PHP)` **equals the exact computed discount** and `Ticket Type Scope` either is blank/`any` or includes their ticket type.
+3. Take the **first** row where `Used?` is `FALSE` and `Gave To` is blank.
+4. Write in that row: `Used? = TRUE`, `Gave To` = full name, `Email`, `Date Assigned` (Manila date), `Rock Request ID`.
+5. Copy the coupon code back into the tracker row.
+
+If the tab has **no codes at all** for the event, stop and tell the user the coupon pool is empty — do not borrow from an archived tab.
+
+Re-read the edited coupon rows after writing. Never issue one code twice. Do not delete or restructure archived coupon tabs unless the user asks.
 
 ## Phase 5: Draft Emails
 
-1. Read the event email template tab, such as `FC26-EmailTemplate`.
-2. Use the template’s own `FROM`, `SUBJECT`, `BODY`, `CC`, and `BCC` fields.
-3. Replace placeholders with:
-   - name
-   - ticket type
-   - coupon code
-   - discount amount with `₱`
-   - amount to pay with `₱`
+1. Read the event's template tab (e.g. `EC26-Template`).
+2. Use its `FROM`, `SUBJECT`, `BODY`, `RECIPIENTS`, `CC`, `BCC` values. **`FROM` varies by event** — `conferences@favor.church` by default, `echo@favor.church` for Echo Conference 2026.
+3. Replace placeholders: `NAME`, `(TicketType)`, `COUPON_CODE`, discount with `₱`, amount to pay with `₱`, `EMAIL_ADDRESS`.
 4. Draft as **HTML** (`is_html: true`), never plain text with markdown. Apply `speak-like-favor` Email Rendering:
-   - **Render the coupon code in a large, bold standout block** (not inline plain text), regardless of whether the template emphasizes it. Example:
+   - **Render the coupon code in a large, bold standout block**, regardless of the template:
      ```html
-     <div style="font-size:34px;font-weight:bold;letter-spacing:3px;color:#E8740C;background:#FFF4E8;border:2px dashed #E8740C;border-radius:10px;padding:18px;text-align:center;margin:18px 0;font-family:monospace;">FC26-XXXX-900</div>
+     <div style="font-size:34px;font-weight:bold;letter-spacing:3px;color:#E8740C;background:#FFF4E8;border:2px dashed #E8740C;border-radius:10px;padding:18px;text-align:center;margin:18px 0;font-family:monospace;">EC26-XXXX-900</div>
      ```
-   - **Make every link clickable:** `<a href="https://favor.church/conference#tickets">favor.church/conference#tickets</a>` (clean visible text, full URL in href).
+   - **Make every link clickable:** `<a href="https://favor.church/echo#tickets">favor.church/echo#tickets</a>`.
    - Bold names and amounts with `<strong>`; use `<ol>`/`<ul>` for steps, never `-`/`*` or `**`.
-   - Keep the footer/signature if the sender account applies it.
-5. Footer must include gmail sender's default signature.
-   - If this cannot be done, try checking recent emails from sender for signatures and copy that. Confirm with user noting this approach.
-6. Create drafts only unless user gave an explicit go-signal to send.
+5. Footer must include the sending account's default signature. If that cannot be applied, check recent mail from that sender for its signature and copy it, telling the user you did so.
+6. Create drafts only — never send without an explicit go-signal.
 
 ### Sender Enforcement
 
-Sender must be the template `FROM` value, normally `conferences@favor.church`.
+The sender is the event's `FROM`, resolved from `CONFIG` + the template tab.
 
 Preferred order:
+
 1. Gmail MCP/CLI method that supports send-as/from.
-2. `gws` or Composio Gmail action with a raw MIME `From:` header and verified send-as support.
-3. If available tools cannot enforce `From`, do not create wrong-sender drafts. Give user:
-   - exact install/auth instructions for a CLI/MCP that can set Gmail send-as
-   - ready-to-send subject/body/recipient drafts as text
+2. `gws` or Composio Gmail with a raw MIME `From:` header and verified send-as.
+3. If no available tool can enforce `From`, **do not create wrong-sender drafts.** Give the user install/auth instructions plus ready-to-send subject/body/recipient text.
 
-Never use browser automation or the user’s Chrome/Gmail UI to fix sender. Browser use is forbidden for this workflow.
+Never use browser automation or the user's Gmail UI to fix the sender.
 
-After drafting, verify every draft:
-- `From` is the required sender
-- `To`, `CC`, and `BCC` match the template
-- subject contains the applicant name
-- body contains the correct coupon, discount, and amount to pay
+After drafting, verify every draft: `From` matches the event's sender, `To`/`CC`/`BCC` match the template, subject contains the applicant's name, and the body carries the right coupon, discount, and amount to pay.
 
 ## Phase 6: Review Checkpoint
 
 Before sending, report:
-- applicants processed
-- clarification cards moved, with reasons
+
+- applicants processed, and which event/opportunity
+- cards moved to Clarification Needed, with reasons
+- pastor-branch submissions skipped
 - CSV path
 - tracker row numbers
 - coupon codes assigned
-- draft ids or draft status
-- verification results
+- **the sender resolved for this batch, and where it came from**
+- draft ids / status and verification results
 
-Do not send email, mark `Sent`, or move processed cards to `couponSent` until user gives a go-signal.
+Do not send, tick `Sent`, or move cards until the user gives a go-signal.
 
 ## Phase 7: Go-Signal Send And Close
 
-After user explicitly says to send/proceed:
+1. Send the verified drafts from the event's sender.
+2. Search sent mail and verify: count equals processed applicants, `from` is the required sender, each recipient got the expected subject and coupon.
+3. Move only successfully sent cards to lane `16`:
+   ```json
+   {
+     "tool": "rock_workflow",
+     "action": "updateConnectionRequest",
+     "connectionRequestId": 1024,
+     "statusId": 16,
+     "dryRun": false,
+     "commit": true,
+     "reason": "Coupon email sent and verified"
+   }
+   ```
+   Use the **ConnectionRequest id**, not the workflow/submission id.
+4. In `REQUESTS`, tick `Sent` and fill `Sender Used` and `Date Sent`.
+5. Add a Sheets note on each `Sent` cell with the sent date and sender, Manila time:
+   ```text
+   Sent via echo@favor.church on Friday, August 14, 2026, 12:02PM
+   ```
 
-1. Send the verified drafts from the required sender.
-2. Search/list sent messages and verify:
-   - count equals processed applicants
-   - `from` is the required sender
-   - each recipient received the expected subject/coupon
-3. Move only successfully sent cards to `couponSent` / “Email & Coupon Sent”.
-4. In `REQUESTS`, tick the `Sent` checkbox for those rows.
-5. Add a Google Sheets note to each `Sent` cell, using the cell `note` field, with the sent date and sender, for example:
+If an email fails, do not move that card or mark it sent. Report the applicant and reason.
 
-```text
-Sent via conferences@favor.church on Tuesday, May 26, 2026, 12:02PM
-```
+## Email-Approved Requests (exception)
 
-Use Manila time for sent notes unless Rico requests another timezone.
+When a request is **approved directly over email** (e.g. handed off from `triage-conference`) and there is **no matching card on the board**, do not block:
 
-If any email fails to send, do not move that card or mark it sent. Report the failed applicant and reason.
+- Skip the board intake and the lane move for that applicant. A missing card is expected here.
+- Still assign the coupon from the coupon tab (Phase 4) and still add the full row to `REQUESTS` (Phase 3), including the code, so it is drawn and recorded exactly once. Leave `Rock Request ID` blank and note "email-approved" .
+- Draft/send in the applicant's thread as usual, from the event's sender.
+- Determine the discount from their stated pay amount. If it is not in the email, use the tier already issued to the same requester's group (check the tracker for their email), or ask. Never round.
+
+Everything else — exact-discount math, one coupon per applicant, tracker recording, sender enforcement — still applies.
 
 ## Verification Checklist
 
 | Area | Verify |
 | --- | --- |
-| Fluro intake | Board id, state keys, linked interaction ids, event |
-| Clarifications | Moved to `step_4`, no coupon/draft allocated |
-| CSV | File exists, row count matches New items inspected |
-| Prices | Source and ticket costs recorded |
-| REQUESTS | Rows inserted, values correct, `Sent` unchecked before send |
-| Coupons | Exact tier, `Used?=TRUE`, `Gave To` full name, coupon copied to tracker |
-| Drafts | Required sender, recipients, CC/BCC, subject, placeholders, formatting |
-| Sending | Sent search confirms exact count and required sender |
-| Closing | Only sent cards moved to `couponSent`; `Sent` checkbox ticked with date note |
+| Environment | Announced prod on every Rock call |
+| CONFIG | Event resolved, opportunity id, tabs, sender — none hardcoded |
+| Intake | Lane 14 only, submissions joined to cards, pastor branch flagged |
+| Clarifications | Moved to lane 15, no coupon or draft allocated |
+| CSV | Exists, row count matches items inspected |
+| Prices | Source recorded, live costs used |
+| REQUESTS | Rows appended by header name, `Rock Request ID` filled, `Sent` unchecked pre-send |
+| Coupons | Exact tier, `Used?=TRUE`, `Gave To` + `Rock Request ID` written, code copied to tracker |
+| Drafts | Event's sender, recipients, CC/BCC, subject, placeholders, HTML formatting |
+| Sending | Sent search confirms exact count and sender |
+| Closing | Only sent cards moved to lane 16; `Sent` ticked with date note |
 
 ## Common Mistakes
 
-| Mistake | Correct Behavior |
+| Mistake | Correct behavior |
 | --- | --- |
-| Moving all New cards | Move only cards matched to processed/sent applicants |
-| Treating generic card titles as people | Fetch linked interactions for real data |
+| Looking for a Fluro board | Fluro is retired; use the Rock connection board |
+| Reading ticket type / amount off the ConnectionRequest | Those attributes are empty — read the form submission |
+| Treating an empty card attribute as `0` | It means "not copied", not "zero" |
+| Sending everything from `conferences@favor.church` | Resolve the sender per event from `CONFIG` (Echo 2026 = `echo@favor.church`) |
+| Hardcoding the opportunity id or tab names | Read them from `CONFIG` each run |
+| Assigning a coupon from an archived tab | Archived tabs are history only |
 | Interpreting `YES`, `.`, blank, or text as `0` | Clarification needed |
 | Using stale ticket prices | Verify live prices first |
-| Rounding to nearest coupon tier | Exact discount only |
-| Creating drafts from `rico@favor.church` | Stop and install/auth sender-capable tooling |
-| Marking `Sent` after draft creation | Mark only after actual sent-message verification |
-| Using browser UI to fix Gmail sender | Forbidden; use MCP/CLI or provide manual drafts |
-| Deleting old coupon columns automatically | Ask before cleanup |
+| Rounding to the nearest coupon tier | Exact discount only |
+| Creating drafts from `rico@favor.church` | Stop and set up sender-capable tooling |
+| Marking `Sent` after creating a draft | Only after a verified send |
+| Moving a card with the workflow/submission id | Use the ConnectionRequest id |
+| Using the browser UI to fix the sender | Forbidden; use MCP/CLI or hand over manual drafts |
 
-## Quick Fluro Reference
+## Adding a New Event
 
-Board states:
+When a new conference opens:
 
-| Key | Title | Use |
-| --- | --- | --- |
-| `new` | New Requests | Intake source |
-| `step_4` | Clarification Needed | Invalid/missing data |
-| `couponSent` | Email & Coupon Sent | Only after email sent |
-| `noCoupon` | No Coupon | Only if Rico decides no coupon |
-| `eventFinished` | Event Finished | Not part of normal processing |
-
-Kanban move shape:
-
-```json
-{
-  "action": "move",
-  "cardIds": ["<process-card-id>"],
-  "toStateKey": "couponSent"
-}
-```
-
-Use the process card `_id`, not the linked interaction `_id`, when moving kanban cards.
+1. In Rock, create a **ConnectionOpportunity** under ConnectionType `4` and note its id.
+2. **Clone WT58** and point the clone's `Event` workflow attribute default at the new opportunity. This is the agreed pattern (decided 2026-08-14): the form deliberately has **no visible Event field**, because Rock's Connection Opportunity picker is not reliably filtered to one connection type and a public picker could misfile a request onto another team's board. One form per event, routing fixed by the attribute default. Never point two live events at one form.
+3. Add a row to `CONFIG`: event code, name, `ACTIVE`, opportunity id, coupon tab, template tab, sender, CC, event page URL.
+4. Create `<CODE>-Coupons` (copy the EC26 header row) and `<CODE>-Template` (copy EC26-Template, change FROM / subject / body / event URL).
+5. Flip the finished event's `CONFIG` row to `ARCHIVED`, rename its tabs `ARCHIVE — …` and hide them.
