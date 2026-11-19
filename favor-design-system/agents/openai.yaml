@@ -1,0 +1,4 @@
+interface:
+  display_name: "Favor Design System"
+  short_description: "Favor Church visuals, UI, prototypes, and design QA"
+  brand_color: "#F45500"

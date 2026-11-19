@@ -22,6 +22,12 @@ Paste into any terminal-capable AI (Claude Code, Gemini CLI, Cursor, Windsurf, o
 Install the "speak-like-favor" folder from https://github.com/favorchurch/favor-skills into my AI agent's global skills directory, then confirm SKILL.md is present.
 ```
 
+#### Install Core Skill (`favor-design-system`)
+
+```text
+Install the "favor-design-system" folder from https://github.com/favorchurch/favor-skills into my AI agent's global skills directory, preserving all references and assets. Confirm SKILL.md is present.
+```
+
 #### Install Core Skill (`update-sunday-signups-sheet`)
 
 ```text
@@ -63,6 +69,7 @@ Paste directly into any AI — web or terminal. Works in Claude.ai Projects and 
 | Skill | Description | Requirements (capability buckets) | Prompt to paste |
 |---|---|---|---|
 | `speak-like-favor` | Favor Church Manila voice and tone — drafting, editing, and QA-ing emails, announcements, invitations, and church copy | None | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/speak-like-favor/SKILL.md and follow it as your active writing and voice guidelines for this conversation.` |
+| `favor-design-system` | Favor Church 2026 visual system for apps, dashboards, prototypes, campaign art, slides, and design QA | None for guidelines · source/assets or code access as needed for implementation | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/favor-design-system/SKILL.md and follow it as my active Favor visual design guidelines. Read the linked references for the task.` |
 | `update-sunday-signups-sheet` | Compute and write the weekly CONNECT/SERVE/BUILD/FAVOR DNA signup counts into the CIW / SIGNUPS Google Sheet tab, sourced from Rock RMS (with residual Fluro union during the 2026 cutover) | **Rock RMS Access** + **Google Sheets Access** (required) · **Fluro Access** (cutover-only, tapering to unneeded) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/update-sunday-signups-sheet/SKILL.md and follow it as your active skill instructions for updating the weekly CIW signup counts.` |
 | `attendees` | Look up registered or checked-in attendee counts for any event via Favor Event Tickets or Fluro | **Event Tickets Access** (required) · **Fluro Access** (optional fallback) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/attendees/SKILL.md and follow it as your active skill instructions for looking up event attendee counts.` |
 | `ticket-transfer` | End-to-end workflow for processing ticket transfer requests from the Fluro kanban, including attendee updates and confirmation emails | **Fluro Access** + **Event Tickets Access** (required) · **Gmail Draft Access** (required for emails) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/ticket-transfer/SKILL.md and follow it as your active skill instructions for handling ticket transfers.` |
@@ -73,7 +80,7 @@ Paste directly into any AI — web or terminal. Works in Claude.ai Projects and 
 | `update-unique-churches` | Recount and update the unique churches represented in the conference attendance Google Sheet | **Google Sheets Access** + **Shell & Python** (required) · web search (optional) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/update-unique-churches/SKILL.md and follow it as your active skill instructions for updating the unique churches count.` |
 | `count-checkin-by-church` | Build/refresh a normalized, self-updating per-church check-in count on the live-count sheet and fix the "unique churches checked in" number | **Google Sheets Access** + **Shell & Python** (required) · **`update-unique-churches` normalized list** (required source of truth) | `Fetch https://raw.githubusercontent.com/favorchurch/favor-skills/main/CONFERENCE-2026/count-checkin-by-church/SKILL.md and follow it as your active skill instructions for counting check-ins per church.` |
 
-> Each skill folder also has its own **README.md** with a deeper usage guide and more recipes. Browse them in [`CONFERENCE-2026/`](CONFERENCE-2026/) and [`speak-like-favor/`](speak-like-favor/).
+> Each skill folder also has its own **README.md** with a deeper usage guide and more recipes. Browse them in [`CONFERENCE-2026/`](CONFERENCE-2026/) [`speak-like-favor/`](speak-like-favor/), and [`favor-design-system/`](favor-design-system/).
 
 ---
 
